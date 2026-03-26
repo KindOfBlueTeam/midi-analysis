@@ -1,6 +1,6 @@
-# MIDI Analysis Studio - Web Interface
+# Atmo Audio Toolbox - Web Interface
 
-The MIDI Analysis project now includes a modern web interface that allows users to upload and analyze MIDI files directly through a web browser.
+The Atmo Audio Toolbox project includes a modern web interface that allows users to upload and analyze MIDI and audio files directly through a web browser.
 
 ## Features
 
@@ -30,13 +30,13 @@ Start the web interface using the CLI:
 
 ```bash
 # Start on default host and port (127.0.0.1:8010)
-midi-analysis web
+atmo-audio-toolbox web
 
 # Start on a specific host and port
-midi-analysis web --host 0.0.0.0 --port 8080
+atmo-audio-toolbox web --host 0.0.0.0 --port 8080
 
 # Enable debug mode for development
-midi-analysis web --debug
+atmo-audio-toolbox web --debug
 ```
 
 Then open your browser and navigate to `http://127.0.0.1:8010` (or your specified host and port).
@@ -135,13 +135,13 @@ The CLI now supports both analyze and web commands:
 
 ```bash
 # Analyze a file from the command line
-midi-analysis analyze file.mid
-midi-analysis analyze file.mid --json
-midi-analysis analyze file.mid --window 16
+atmo-audio-toolbox analyze file.mid
+atmo-audio-toolbox analyze file.mid --json
+atmo-audio-toolbox analyze file.mid --window 16
 
 # Start the web server
-midi-analysis web
-midi-analysis web --host 0.0.0.0 --port 8080
+atmo-audio-toolbox web
+atmo-audio-toolbox web --host 0.0.0.0 --port 8080
 ```
 
 ## Troubleshooting

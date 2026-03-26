@@ -1,7 +1,7 @@
 # Web Frontend Implementation Summary
 
 ## Overview
-Added a complete web-based frontend for the MIDI Analysis project, allowing users to upload and analyze MIDI files through a modern, user-friendly web interface. All files are processed in memory only and never written to disk.
+Added a complete web-based frontend for the Atmo Audio Toolbox project, allowing users to upload and analyze MIDI and audio files through a modern, user-friendly web interface. All files are processed in memory only and never written to disk.
 
 ## Files Added
 
@@ -95,22 +95,22 @@ Added a complete web-based frontend for the MIDI Analysis project, allowing user
 
 ### Start Web Server
 ```bash
-midi-analysis web
-midi-analysis web --host 0.0.0.0 --port 8080
-midi-analysis web --debug
+atmo-audio-toolbox web
+atmo-audio-toolbox web --host 0.0.0.0 --port 8080
+atmo-audio-toolbox web --debug
 ```
 
 ### Command-Line (Backward Compatible)
 ```bash
-midi-analysis analyze file.mid
-midi-analysis analyze file.mid --json
+atmo-audio-toolbox analyze file.mid
+atmo-audio-toolbox analyze file.mid --json
 ```
 
 ## Testing Checklist
 
 Before deployment, verify:
 - [ ] Flask installation: `pip install -r requirements.txt`
-- [ ] Web server starts: `midi-analysis web`
+- [ ] Web server starts: `atmo-audio-toolbox web`
 - [ ] Browser opens to localhost:5000
 - [ ] File upload works (drag-drop and click)
 - [ ] Analysis completes successfully

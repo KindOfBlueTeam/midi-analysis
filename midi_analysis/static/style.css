@@ -103,6 +103,21 @@ main {
     margin-bottom: 1.5rem;
 }
 
+.upload-hint {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.upload-hint a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.upload-hint a:hover {
+    color: var(--secondary-color);
+}
+
 .file-name {
     margin-top: 1rem;
     padding: 1rem;

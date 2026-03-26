@@ -38,9 +38,24 @@ body {
 }
 
 header {
-    text-align: center;
     margin-bottom: 3rem;
     padding: 2rem 0;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.header-logo {
+    height: 64px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+.header-inner > div {
+    flex: 1;
 }
 
 header h1 {

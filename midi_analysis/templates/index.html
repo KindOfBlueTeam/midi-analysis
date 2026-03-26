@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atmo Music Studio</title>
+    <title>Atmo Audio Toolbox</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎼 Atmo Music Studio</h1>
-            <p class="subtitle">Upload and analyze your MIDI or audio files instantly</p>
+            <div class="header-inner">
+                <img src="{{ url_for('static', filename='img/atmo-records-logo-test.png') }}" alt="Atmo Records" class="header-logo">
+                <div>
+                    <h1>Atmo Audio Toolbox</h1>
+                    <p class="subtitle">Upload and analyze your MIDI or audio files instantly</p>
+                </div>
+            </div>
         </header>
 
         <!-- Tab Bar -->

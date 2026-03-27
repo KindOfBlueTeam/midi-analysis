@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import os
+import threading
 from pathlib import Path
 
 import mido
@@ -14,6 +15,9 @@ from .audio_analyzer import analyze_audio
 
 _AUDIO_EXTENSIONS = {'.wav', '.aif', '.aiff', '.flac', '.ogg', '.mp3'}
 _AUDIO_MAX_BYTES  = 100 * 1024 * 1024  # 100 MB
+
+# Limit concurrent audio analyses — each one peaks at ~2 GB RAM
+_AUDIO_SEMAPHORE = threading.Semaphore(2)
 
 
 def _sanitize_midi_bytes(data: bytes) -> bytes:
@@ -60,6 +64,26 @@ def create_app():
     def index():
         """Serve the main analysis page."""
         return render_template('index.html')
+
+    @app.route('/b')
+    def index_b():
+        """Serve the B-variant (redesigned) analysis page."""
+        return render_template('index_b.html')
+
+    @app.route('/c')
+    def index_c():
+        """Serve the C-variant (gold & blue) analysis page."""
+        return render_template('index_c.html')
+
+    @app.route('/d')
+    def index_d():
+        """Serve the D-variant (studio console) analysis page."""
+        return render_template('index_d.html')
+
+    @app.route('/e')
+    def index_e():
+        """Serve the E-variant (astonishing) analysis page."""
+        return render_template('index_e.html')
 
     @app.route('/api/analyze', methods=['POST'])
     def analyze():

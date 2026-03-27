@@ -24,7 +24,7 @@ class MIDIAnalysisApp {
             errorMessage: document.getElementById('errorMessage'),
             retryBtn: document.getElementById('retryBtn'),
             analyzeAnotherBtn: document.getElementById('analyzeAnotherBtn'),
-            copyJsonBtn: document.getElementById('copyJsonBtn'),
+            copyJsonBtn: document.getElementById('downloadJsonBtn') || document.getElementById('copyJsonBtn'),
             dynamicsBtns: document.getElementById('dynamicsBtns'),
             humanizeBtn: document.getElementById('humanizeBtn'),
             normalizeVelocityBtn: document.getElementById('normalizeVelocityBtn'),
@@ -45,7 +45,7 @@ class MIDIAnalysisApp {
             audioErrorMessage:    document.getElementById('audioErrorMessage'),
             audioRetryBtn:        document.getElementById('audioRetryBtn'),
             audioAnalyzeAnotherBtn: document.getElementById('audioAnalyzeAnotherBtn'),
-            copyAudioJsonBtn:     document.getElementById('copyAudioJsonBtn'),
+            copyAudioJsonBtn:     document.getElementById('downloadAudioJsonBtn') || document.getElementById('copyAudioJsonBtn'),
         };
     }
 
@@ -88,8 +88,12 @@ class MIDIAnalysisApp {
             this.reset();
         });
 
-        this.elements.copyJsonBtn.addEventListener('click', () => {
-            this.copyJsonToClipboard();
+        this.elements.copyJsonBtn?.addEventListener('click', () => {
+            if (this.elements.copyJsonBtn.id === 'downloadJsonBtn') {
+                this._downloadJson(JSON.stringify(this.midiResult, null, 2), this.midiFile?.name || 'midi-analysis');
+            } else {
+                this.copyJsonToClipboard();
+            }
         });
 
         // Tab switching
@@ -121,14 +125,18 @@ class MIDIAnalysisApp {
         this.elements.audioAnalyzeBtn.addEventListener('click', () => this.analyzeAudioFile());
         this.elements.audioAnalyzeAnotherBtn.addEventListener('click', () => this.resetAudio());
         this.elements.audioRetryBtn.addEventListener('click', () => this.resetAudio());
-        this.elements.copyAudioJsonBtn.addEventListener('click', () => {
-            const json = document.getElementById('audioRawJSON').textContent;
-            navigator.clipboard.writeText(json).then(() => {
-                const btn = this.elements.copyAudioJsonBtn;
-                const orig = btn.textContent;
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => { btn.textContent = orig; }, 2000);
-            });
+        this.elements.copyAudioJsonBtn?.addEventListener('click', () => {
+            if (this.elements.copyAudioJsonBtn.id === 'downloadAudioJsonBtn') {
+                this._downloadJson(JSON.stringify(this.audioResult, null, 2), this.audioFile?.name || 'audio-analysis');
+            } else {
+                const json = document.getElementById('audioRawJSON')?.textContent || JSON.stringify(this.audioResult, null, 2);
+                navigator.clipboard.writeText(json).then(() => {
+                    const btn = this.elements.copyAudioJsonBtn;
+                    const orig = btn.textContent;
+                    btn.textContent = '✓ Copied!';
+                    setTimeout(() => { btn.textContent = orig; }, 2000);
+                });
+            }
         });
 
         // Error retry
@@ -404,9 +412,10 @@ class MIDIAnalysisApp {
             this.elements.humanizeTimingBtn.style.display = 'inline-block';
         }
 
-        // Raw JSON
-        document.getElementById('rawJSON').textContent =
-            JSON.stringify(result, null, 2);
+        // Store result for download; write to raw display if present
+        this.midiResult = result;
+        const midiRawEl = document.getElementById('rawJSON');
+        if (midiRawEl) midiRawEl.textContent = JSON.stringify(result, null, 2);
 
         // Scroll to results
         requestAnimationFrame(() => {
@@ -641,8 +650,48 @@ class MIDIAnalysisApp {
         }
     }
 
+    _renderStereoCone(containerId, widthPct) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        const W = 400, H = 80;
+        const cx = W / 2;
+        const pct = Math.max(0, Math.min(100, widthPct)) / 100;
+        // wide at top (listener perspective), narrow tip at bottom (source)
+        const topHalf = 4 + pct * (cx - 8);
+        const botHalf = 4 + pct * 12;
+        const pts = `${cx - topHalf},2 ${cx + topHalf},2 ${cx + botHalf},${H - 2} ${cx - botHalf},${H - 2}`;
+        el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}">
+            <defs>
+                <linearGradient id="coneGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%"   stop-color="rgba(0,80,180,0.25)"/>
+                    <stop offset="50%"  stop-color="rgba(200,150,12,0.45)"/>
+                    <stop offset="100%" stop-color="rgba(0,80,180,0.25)"/>
+                </linearGradient>
+            </defs>
+            <polygon points="${pts}"
+                fill="url(#coneGrad)"
+                stroke="rgba(200,150,12,0.55)" stroke-width="1" stroke-linejoin="round"/>
+            <line x1="${cx}" y1="0" x2="${cx}" y2="${H}"
+                stroke="rgba(200,150,12,0.18)" stroke-width="1" stroke-dasharray="3,4"/>
+        </svg>`;
+        el.style.display = 'block';
+    }
+
+    _downloadJson(json, sourceFilename) {
+        const stem = sourceFilename.replace(/\.[^.]+$/, '');
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${stem}-analysis.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
     copyJsonToClipboard() {
-        const json = document.getElementById('rawJSON').textContent;
+        const json = document.getElementById('rawJSON')?.textContent || JSON.stringify(this.midiResult, null, 2);
         navigator.clipboard.writeText(json).then(() => {
             const btn = this.elements.copyJsonBtn;
             const originalText = btn.textContent;
@@ -853,9 +902,7 @@ class MIDIAnalysisApp {
                 this._set('aResSide',  `${st.side_energy_pct}%`);
                 this._set('aResPhase', st.phase_correlation ?? 'N/A');
                 this._set('aResMono',  `${st.mono_compatibility_pct}% — ${st.mono_compatibility_label}`);
-                const fill = document.getElementById('stereoWidthFill');
-                if (fill) fill.style.width = `${st.stereo_width_pct}%`;
-                document.getElementById('stereoWidthBar').style.display = 'block';
+                this._renderStereoCone('stereoWidthBar', st.stereo_width_pct);
             }
         }
 
@@ -900,7 +947,7 @@ class MIDIAnalysisApp {
         if (!struct.error) {
             this._set('aResPeak',    struct.peak_energy_time_sec != null ? `${struct.peak_energy_time_sec}s` : 'N/A');
             this._set('aResDensity', struct.density_onsets_per_sec != null ? `${struct.density_onsets_per_sec} onsets/s` : 'N/A');
-            this._renderEnergyCurve('energyCurve', struct.energy_curve || []);
+            this._renderEnergyCurve('energyCurve', struct.energy_curve || [], struct.sections || [], r.duration_seconds || 0);
             this._renderSections('sectionsList', struct.sections || []);
         }
 
@@ -914,8 +961,10 @@ class MIDIAnalysisApp {
                 : 'N/A');
         }
 
-        // Raw JSON
-        document.getElementById('audioRawJSON').textContent = JSON.stringify(r, null, 2);
+        // Store result for download; write to raw display if present
+        this.audioResult = r;
+        const audioRawEl = document.getElementById('audioRawJSON');
+        if (audioRawEl) audioRawEl.textContent = JSON.stringify(r, null, 2);
 
         // Radar charts — built last so all data sections are populated
         this._buildRadarCharts(r);
@@ -1117,14 +1166,43 @@ class MIDIAnalysisApp {
         el.innerHTML = rows;
     }
 
-    _renderEnergyCurve(containerId, curve) {
+    _renderEnergyCurve(containerId, curve, sections = [], durationSec = 0) {
         if (!curve.length) return;
+        const el = document.getElementById(containerId);
+        if (!el) return;
+
         const max = Math.max(...curve, 0.001);
-        const html = curve.map(v => {
+        const bars = curve.map(v => {
             const h = Math.max(2, Math.round(v / max * 100));
             return `<div class="energy-bar" style="height:${h}%"></div>`;
         }).join('');
-        document.getElementById(containerId).innerHTML = html;
+
+        // Build section overlays if we have boundary data
+        let overlays = '';
+        if (sections.length > 1 && durationSec > 0) {
+            // Parse start second from time_range strings like "230s – 460s" or "0s – end"
+            const starts = sections.map(s => {
+                const m = (s.time_range || '').match(/^(\d+)s/);
+                return m ? parseInt(m[1], 10) : 0;
+            });
+
+            sections.forEach((s, i) => {
+                const startPct = (starts[i] / durationSec) * 100;
+                const endPct   = i < sections.length - 1
+                    ? (starts[i + 1] / durationSec) * 100
+                    : 100;
+                const midPct = (startPct + endPct) / 2;
+
+                // Boundary line before each section except the first
+                if (i > 0) {
+                    overlays += `<div class="energy-section-line" style="left:${startPct}%"></div>`;
+                }
+                // Label centred within the section
+                overlays += `<div class="energy-section-label" style="left:${midPct}%">${s.label}</div>`;
+            });
+        }
+
+        el.innerHTML = `<div class="energy-bars">${bars}</div>${overlays}`;
     }
 
     _renderSections(containerId, sections) {
@@ -1206,15 +1284,18 @@ class MIDIAnalysisApp {
             `<circle cx="${px(i, norm[i])}" cy="${py(i, norm[i])}" r="3" fill="#00ccff"/>`
         ).join('');
 
-        // Labels
+        // Labels — green (high-value) notes render at 2× size for visibility
         const txtLabels = labels.map((lbl, i) => {
             const lx = cx + Math.cos(angle(i)) * labelR;
             const ly = cy + Math.sin(angle(i)) * labelR;
+            const isGreen = labelColor[i] === '#10b981';
+            const fs = isGreen ? 22 : 11;
+            const fw = isGreen ? 'bold' : 'normal';
             return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle"
-                font-family="'Josefin Slab',Georgia,serif" font-size="11" fill="${labelColor[i]}">${lbl}</text>`;
+                font-family="'Josefin Slab',Georgia,serif" font-size="${fs}" font-weight="${fw}" fill="${labelColor[i]}">${lbl}</text>`;
         }).join('');
 
-        el.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        el.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" overflow="visible">
             ${rings}${spokes}${dataShape}${dots}${txtLabels}
         </svg>`;
     }

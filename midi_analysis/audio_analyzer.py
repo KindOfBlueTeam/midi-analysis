@@ -9,6 +9,7 @@ import os
 os.environ.setdefault('NUMBA_DISABLE_JIT', '1')
 
 import io
+import tempfile
 import numpy as np
 import soundfile as sf
 import librosa
@@ -671,25 +672,34 @@ def _compute_harmonic_root_scores(
 
 # ── Audio loader ──────────────────────────────────────────────────────────────
 
-def _load_audio(file_bytes: bytes) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+def _load_audio(file_bytes: bytes, filename: str = '') -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """
     Load audio from raw bytes.
     Returns (y_left, y_right, y_mono, sr) — all float32, shape (N,).
-    Tries soundfile first (WAV/AIFF/FLAC/OGG), then librosa (MP3 via ffmpeg).
+    Tries soundfile first (WAV/AIFF/FLAC/OGG), then writes to a named temp
+    file so librosa's audioread/ffmpeg fallback can read MP3 by file path.
     """
     buf = io.BytesIO(file_bytes)
     try:
         data, sr = sf.read(buf, always_2d=True, dtype='float32')
-        # soundfile returns (samples, channels)
-        y_mono = librosa.to_mono(data.T)
+        y_mono  = librosa.to_mono(data.T)
         y_left  = data[:, 0]
         y_right = data[:, 1] if data.shape[1] >= 2 else data[:, 0]
         return y_left, y_right, y_mono, int(sr)
     except Exception:
         pass
 
-    buf.seek(0)
-    y_lr, sr = librosa.load(buf, sr=None, mono=False)
+    # soundfile failed (e.g. MP3) — write to a named temp file so that
+    # librosa's audioread/ffmpeg fallback receives a real file path.
+    suffix = os.path.splitext(filename)[1] or '.audio'
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = tmp.name
+    try:
+        y_lr, sr = librosa.load(tmp_path, sr=None, mono=False)
+    finally:
+        os.unlink(tmp_path)
+
     if y_lr.ndim == 1:
         return y_lr, y_lr, y_lr, int(sr)
     y_left  = np.asarray(y_lr[0], dtype=np.float32)
@@ -702,7 +712,7 @@ def _load_audio(file_bytes: bytes) -> tuple[np.ndarray, np.ndarray, np.ndarray, 
 
 def analyze_audio(file_bytes: bytes, filename: str) -> dict:
     """Load audio once, dispatch to all sub-analyzers, return JSON-ready dict."""
-    y_left, y_right, y_mono, sr = _load_audio(file_bytes)
+    y_left, y_right, y_mono, sr = _load_audio(file_bytes, filename)
 
     is_mono = bool(np.allclose(y_left, y_right, atol=1e-6))
     result: dict = {

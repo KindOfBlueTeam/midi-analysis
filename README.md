@@ -1,4 +1,4 @@
-# Atmo Audio Toolbox
+# Atmo Audio Tools
 
 A Python tool for comprehensive audio and MIDI file analysis, with a web UI and CLI. Designed to handle real-world MIDI files including those exported from AI music generators like Suno, which often contain corrupt metadata.
 
@@ -38,8 +38,8 @@ The web interface provides drag-and-drop file upload and displays all analysis r
 Requires Python 3.9+.
 
 ```bash
-git clone https://github.com/KindOfBlueTeam/atmo-audio-toolbox.git
-cd atmo-audio-toolbox
+git clone https://github.com/KindOfBlueTeam/atmo-audio-tools.git
+cd atmo-audio-tools
 python -m venv venv
 source venv/bin/activate       # Windows: venv\Scripts\activate
 pip install -e ".[web]"
@@ -52,21 +52,21 @@ pip install -e ".[web]"
 ### Web Interface
 
 ```bash
-atmo-audio-toolbox web
+atmo-audio-tools web
 ```
 
 Opens at [http://localhost:8010](http://localhost:8010). Drag and drop any `.mid` or `.midi` file to analyze it. Use the action buttons to download humanized or normalized versions.
 
 Options:
 ```bash
-atmo-audio-toolbox web --host 0.0.0.0 --port 8080 --debug
+atmo-audio-tools web --host 0.0.0.0 --port 8080 --debug
 ```
 
 ### Command Line
 
 ```bash
-atmo-audio-toolbox analyze path/to/file.mid
-atmo-audio-toolbox analyze path/to/file.mid --json
+atmo-audio-tools analyze path/to/file.mid
+atmo-audio-tools analyze path/to/file.mid --json
 ```
 
 ---
@@ -74,8 +74,8 @@ atmo-audio-toolbox analyze path/to/file.mid --json
 ## Project Structure
 
 ```
-atmo-audio-toolbox/
-├── midi_analysis/
+atmo-audio-tools/
+├── atmo-audio-tools/
 │   ├── analyzer.py        # Orchestrates all analysis modules
 │   ├── midi_parser.py     # Lightweight parser tolerant of corrupt MIDI files
 │   ├── key_detection.py   # Krumhansl-Schmuckler key & modulation detection

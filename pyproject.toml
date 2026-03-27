@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atmo-audio-toolbox"
+name = "atmo-audio-tools"
 version = "0.1.0"
 description = "Comprehensive audio and MIDI file analysis: key, mode, tempo, dynamics, and more"
 requires-python = ">=3.9"
@@ -17,8 +17,8 @@ dependencies = [
 web = ["Flask>=2.0"]
 
 [project.scripts]
-atmo-audio-toolbox = "midi_analysis.cli:main"
+atmo-audio-tools = "atmo_audio_tools.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["midi_analysis*"]
+include = ["atmo_audio_tools*"]

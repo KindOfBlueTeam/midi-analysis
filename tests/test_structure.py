@@ -2,7 +2,7 @@
 
 import pytest
 
-from midi_analysis.structure import midi_note_name, GM_INSTRUMENTS
+from atmo_audio_tools.structure import midi_note_name, GM_INSTRUMENTS
 
 
 class TestMidiNoteName:

@@ -1,12 +1,12 @@
 # Web Frontend Implementation Summary
 
 ## Overview
-Added a complete web-based frontend for the Atmo Audio Toolbox project, allowing users to upload and analyze MIDI and audio files through a modern, user-friendly web interface. All files are processed in memory only and never written to disk.
+Added a complete web-based frontend for the Atmo Audio Tools project, allowing users to upload and analyze MIDI and audio files through a modern, user-friendly web interface. All files are processed in memory only and never written to disk.
 
 ## Files Added
 
 ### Web Application
-- **`midi_analysis/web.py`** - Flask application with analysis API endpoint
+- **`atmo-audio-tools/web.py`** - Flask application with analysis API endpoint
   - `create_app()`: Creates and configures Flask app
   - `/` - Main page serving HTML
   - `/api/analyze` - POST endpoint for file upload and analysis
@@ -14,21 +14,21 @@ Added a complete web-based frontend for the Atmo Audio Toolbox project, allowing
   - In-memory file processing using `io.BytesIO`
 
 ### Frontend Assets
-- **`midi_analysis/templates/index.html`** - HTML interface with:
+- **`atmo-audio-tools/templates/index.html`** - HTML interface with:
   - Modern card-based layout
   - Drag-and-drop file upload
   - Real-time analysis result display
   - Organized sections for all analysis types
   - Raw JSON export capability
 
-- **`midi_analysis/static/style.css`** - Modern dark-themed styling with:
+- **`atmo-audio-tools/static/style.css`** - Modern dark-themed styling with:
   - Responsive grid layout
   - Gradient backgrounds and buttons
   - Smooth animations and transitions
   - Mobile-friendly design
   - Dark mode colors
 
-- **`midi_analysis/static/app.js`** - Client-side application with:
+- **`atmo-audio-tools/static/app.js`** - Client-side application with:
   - File upload handling (drag-drop + click)
   - API communication with error handling
   - Dynamic result rendering
@@ -48,12 +48,12 @@ Added a complete web-based frontend for the Atmo Audio Toolbox project, allowing
 
 ## Core Changes
 
-### `midi_analysis/analyzer.py`
+### `atmo-audio-tools/analyzer.py`
 - Updated `__init__` to accept both file paths and `io.BytesIO` objects
 - Added support for in-memory file analysis
 - Maintains backward compatibility with file path usage
 
-### `midi_analysis/cli.py`
+### `atmo-audio-tools/cli.py`
 - Converted main function to click group for multiple commands
 - Added `analyze` subcommand (original analyze functionality)
 - Added `web` subcommand to start the web server
@@ -95,22 +95,22 @@ Added a complete web-based frontend for the Atmo Audio Toolbox project, allowing
 
 ### Start Web Server
 ```bash
-atmo-audio-toolbox web
-atmo-audio-toolbox web --host 0.0.0.0 --port 8080
-atmo-audio-toolbox web --debug
+atmo-audio-tools web
+atmo-audio-tools web --host 0.0.0.0 --port 8080
+atmo-audio-tools web --debug
 ```
 
 ### Command-Line (Backward Compatible)
 ```bash
-atmo-audio-toolbox analyze file.mid
-atmo-audio-toolbox analyze file.mid --json
+atmo-audio-tools analyze file.mid
+atmo-audio-tools analyze file.mid --json
 ```
 
 ## Testing Checklist
 
 Before deployment, verify:
 - [ ] Flask installation: `pip install -r requirements.txt`
-- [ ] Web server starts: `atmo-audio-toolbox web`
+- [ ] Web server starts: `atmo-audio-tools web`
 - [ ] Browser opens to localhost:5000
 - [ ] File upload works (drag-drop and click)
 - [ ] Analysis completes successfully

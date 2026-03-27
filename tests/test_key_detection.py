@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from midi_analysis.key_detection import (
+from atmo_audio_tools.key_detection import (
     NOTE_NAMES,
     _detect_modal_flavor,
     _ks_correlate,

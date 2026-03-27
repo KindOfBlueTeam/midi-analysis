@@ -2,7 +2,7 @@
 
 import pytest
 
-from midi_analysis.dynamics import velocity_to_dynamic, _detect_dynamic_patterns
+from atmo_audio_tools.dynamics import velocity_to_dynamic, _detect_dynamic_patterns
 
 
 class TestVelocityToDynamic:

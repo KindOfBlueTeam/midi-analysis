@@ -1,6 +1,6 @@
-# Atmo Audio Toolbox - Web Interface
+# Atmo Audio Tools - Web Interface
 
-The Atmo Audio Toolbox project includes a modern web interface that allows users to upload and analyze MIDI and audio files directly through a web browser.
+The Atmo Audio Tools project includes a modern web interface that allows users to upload and analyze MIDI and audio files directly through a web browser.
 
 ## Features
 
@@ -30,13 +30,13 @@ Start the web interface using the CLI:
 
 ```bash
 # Start on default host and port (127.0.0.1:8010)
-atmo-audio-toolbox web
+atmo-audio-tools web
 
 # Start on a specific host and port
-atmo-audio-toolbox web --host 0.0.0.0 --port 8080
+atmo-audio-tools web --host 0.0.0.0 --port 8080
 
 # Enable debug mode for development
-atmo-audio-toolbox web --debug
+atmo-audio-tools web --debug
 ```
 
 Then open your browser and navigate to `http://127.0.0.1:8010` (or your specified host and port).
@@ -135,13 +135,13 @@ The CLI now supports both analyze and web commands:
 
 ```bash
 # Analyze a file from the command line
-atmo-audio-toolbox analyze file.mid
-atmo-audio-toolbox analyze file.mid --json
-atmo-audio-toolbox analyze file.mid --window 16
+atmo-audio-tools analyze file.mid
+atmo-audio-tools analyze file.mid --json
+atmo-audio-tools analyze file.mid --window 16
 
 # Start the web server
-atmo-audio-toolbox web
-atmo-audio-toolbox web --host 0.0.0.0 --port 8080
+atmo-audio-tools web
+atmo-audio-tools web --host 0.0.0.0 --port 8080
 ```
 
 ## Troubleshooting
@@ -183,7 +183,7 @@ The web interface works on all modern browsers:
 The web interface is organized as follows:
 
 ```
-midi_analysis/
+atmo-audio-tools/
 ├── web.py                    # Flask application
 ├── templates/
 │   └── index.html           # HTML interface

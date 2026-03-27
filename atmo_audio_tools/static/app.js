@@ -4,6 +4,8 @@ class MIDIAnalysisApp {
     constructor() {
         this.midiFile  = null;
         this.audioFile = null;
+        this.masterTargetFile    = null;
+        this.masterReferenceFile = null;
         this.analysisResult = null;
         this.activeTab = 'audio';
 
@@ -46,6 +48,24 @@ class MIDIAnalysisApp {
             audioRetryBtn:        document.getElementById('audioRetryBtn'),
             audioAnalyzeAnotherBtn: document.getElementById('audioAnalyzeAnotherBtn'),
             copyAudioJsonBtn:     document.getElementById('downloadAudioJsonBtn') || document.getElementById('copyAudioJsonBtn'),
+            // Master tab
+            masterTargetBox:       document.getElementById('masterTargetBox'),
+            masterTargetInput:     document.getElementById('masterTargetInput'),
+            masterTargetBrowseBtn: document.getElementById('masterTargetBrowseBtn'),
+            masterTargetFileName:  document.getElementById('masterTargetFileName'),
+            masterReferenceBox:       document.getElementById('masterReferenceBox'),
+            masterReferenceInput:     document.getElementById('masterReferenceInput'),
+            masterReferenceBrowseBtn: document.getElementById('masterReferenceBrowseBtn'),
+            masterReferenceFileName:  document.getElementById('masterReferenceFileName'),
+            masterSubmitBtn:       document.getElementById('masterSubmitBtn'),
+            masterLoadingSpinner:  document.getElementById('masterLoadingSpinner'),
+            masterResultSection:   document.getElementById('masterResultSection'),
+            masterResultMsg:       document.getElementById('masterResultMsg'),
+            masterDownloadLink:    document.getElementById('masterDownloadLink'),
+            masterResetBtn:        document.getElementById('masterResetBtn'),
+            masterErrorSection:    document.getElementById('masterErrorSection'),
+            masterErrorMessage:    document.getElementById('masterErrorMessage'),
+            masterRetryBtn:        document.getElementById('masterRetryBtn'),
         };
     }
 
@@ -198,6 +218,50 @@ class MIDIAnalysisApp {
                 this.humanizeTimingFile(intensity);
             });
         });
+
+        // Master tab — target file
+        this.elements.masterTargetBrowseBtn.addEventListener('click', () => {
+            this.elements.masterTargetInput.click();
+        });
+        this.elements.masterTargetInput.addEventListener('change', (e) => {
+            this.handleMasterFileSelect('target', e.target.files[0]);
+        });
+        this.elements.masterTargetBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.elements.masterTargetBox.classList.add('dragover');
+        });
+        this.elements.masterTargetBox.addEventListener('dragleave', () => {
+            this.elements.masterTargetBox.classList.remove('dragover');
+        });
+        this.elements.masterTargetBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.masterTargetBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) this.handleMasterFileSelect('target', e.dataTransfer.files[0]);
+        });
+
+        // Master tab — reference file
+        this.elements.masterReferenceBrowseBtn.addEventListener('click', () => {
+            this.elements.masterReferenceInput.click();
+        });
+        this.elements.masterReferenceInput.addEventListener('change', (e) => {
+            this.handleMasterFileSelect('reference', e.target.files[0]);
+        });
+        this.elements.masterReferenceBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.elements.masterReferenceBox.classList.add('dragover');
+        });
+        this.elements.masterReferenceBox.addEventListener('dragleave', () => {
+            this.elements.masterReferenceBox.classList.remove('dragover');
+        });
+        this.elements.masterReferenceBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.masterReferenceBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) this.handleMasterFileSelect('reference', e.dataTransfer.files[0]);
+        });
+
+        this.elements.masterSubmitBtn.addEventListener('click', () => this.submitMastering());
+        this.elements.masterResetBtn.addEventListener('click', () => this.resetMaster());
+        this.elements.masterRetryBtn.addEventListener('click', () => this.resetMaster());
     }
 
     handleFileSelect(file) {
@@ -750,8 +814,9 @@ class MIDIAnalysisApp {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tab);
         });
-        document.getElementById('midiTab').style.display  = tab === 'midi'  ? '' : 'none';
-        document.getElementById('audioTab').style.display = tab === 'audio' ? '' : 'none';
+        document.getElementById('midiTab').style.display    = tab === 'midi'   ? '' : 'none';
+        document.getElementById('audioTab').style.display   = tab === 'audio'  ? '' : 'none';
+        document.getElementById('masterTab').style.display  = tab === 'master' ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────
@@ -794,6 +859,89 @@ class MIDIAnalysisApp {
         } finally {
             this.elements.audioLoadingSpinner.style.display = 'none';
         }
+    }
+
+    // ── Master tab ────────────────────────────────────────────────────────────
+
+    handleMasterFileSelect(slot, file) {
+        if (!file) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['wav', 'aif', 'aiff', 'flac'].includes(ext)) {
+            this.showMasterError(`Please select a WAV, AIFF, or FLAC file (got .${ext})`);
+            return;
+        }
+        if (file.size > 100 * 1024 * 1024) {
+            this.showMasterError('File is too large. Maximum size is 100 MB');
+            return;
+        }
+        this.hideMasterError();
+        if (slot === 'target') {
+            this.masterTargetFile = file;
+            this.elements.masterTargetFileName.textContent = `🎵 ${file.name} (${this.formatFileSize(file.size)})`;
+            this.elements.masterTargetFileName.style.display = 'block';
+        } else {
+            this.masterReferenceFile = file;
+            this.elements.masterReferenceFileName.textContent = `🎼 ${file.name} (${this.formatFileSize(file.size)})`;
+            this.elements.masterReferenceFileName.style.display = 'block';
+        }
+        if (this.masterTargetFile && this.masterReferenceFile) {
+            this.elements.masterSubmitBtn.style.display = 'inline-block';
+        }
+    }
+
+    async submitMastering() {
+        if (!this.masterTargetFile || !this.masterReferenceFile) return;
+
+        const formData = new FormData();
+        formData.append('target',    this.masterTargetFile);
+        formData.append('reference', this.masterReferenceFile);
+
+        this.elements.masterLoadingSpinner.style.display  = 'block';
+        this.elements.masterResultSection.style.display   = 'none';
+        this.elements.masterSubmitBtn.style.display       = 'none';
+        this.hideMasterError();
+
+        try {
+            const response = await fetch('/api/master', { method: 'POST', body: formData });
+            if (!response.ok) {
+                let errMsg = 'Mastering failed';
+                try { const j = await response.json(); errMsg = j.error || errMsg; } catch {}
+                throw new Error(errMsg);
+            }
+            const blob = await response.blob();
+            const url  = URL.createObjectURL(blob);
+            const stem = this.masterTargetFile.name.replace(/\.[^.]+$/, '');
+            this.elements.masterDownloadLink.href              = url;
+            this.elements.masterDownloadLink.download          = `${stem}-mastered.wav`;
+            this.elements.masterResultMsg.textContent          = `${this.masterTargetFile.name} mastered to match ${this.masterReferenceFile.name}`;
+            this.elements.masterResultSection.style.display    = 'block';
+        } catch (error) {
+            this.showMasterError(`Mastering error: ${error.message}`);
+            this.elements.masterSubmitBtn.style.display = 'inline-block';
+        } finally {
+            this.elements.masterLoadingSpinner.style.display = 'none';
+        }
+    }
+
+    resetMaster() {
+        this.masterTargetFile    = null;
+        this.masterReferenceFile = null;
+        this.elements.masterTargetInput.value    = '';
+        this.elements.masterReferenceInput.value = '';
+        this.elements.masterTargetFileName.style.display    = 'none';
+        this.elements.masterReferenceFileName.style.display = 'none';
+        this.elements.masterSubmitBtn.style.display         = 'none';
+        this.elements.masterResultSection.style.display     = 'none';
+        this.hideMasterError();
+    }
+
+    showMasterError(msg) {
+        this.elements.masterErrorMessage.textContent    = msg;
+        this.elements.masterErrorSection.style.display  = 'block';
+    }
+
+    hideMasterError() {
+        this.elements.masterErrorSection.style.display = 'none';
     }
 
     // ── Audio results display ─────────────────────────────────────────────────

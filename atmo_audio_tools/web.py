@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import os
+import tempfile
 import threading
 from pathlib import Path
 
@@ -401,6 +402,89 @@ def create_app():
         except Exception as exc:
             app.logger.error("Humanize timing failed: %s", exc, exc_info=True)
             return jsonify({'error': f'Timing humanization failed: {exc}'}), 400
+
+    @app.route('/api/master', methods=['POST'])
+    def master_audio():
+        """
+        Apply reference mastering to a target audio file using Matchering.
+
+        Expects a multipart form with:
+          - 'target': the audio file to master (WAV, AIFF, FLAC)
+          - 'reference': the reference track to match loudness/EQ to
+
+        Returns the mastered WAV as a download.
+        """
+        if 'target' not in request.files or 'reference' not in request.files:
+            return jsonify({'error': 'Both target and reference files are required'}), 400
+
+        target_file = request.files['target']
+        ref_file    = request.files['reference']
+
+        if not target_file.filename or not ref_file.filename:
+            return jsonify({'error': 'Both target and reference files must be selected'}), 400
+
+        _MASTER_EXTENSIONS = {'.wav', '.aif', '.aiff', '.flac'}
+        target_ext = os.path.splitext(os.path.basename(target_file.filename))[1].lower()
+        ref_ext    = os.path.splitext(os.path.basename(ref_file.filename))[1].lower()
+
+        if target_ext not in _MASTER_EXTENSIONS:
+            return jsonify({'error': f'Target must be WAV, AIFF, or FLAC (got {target_ext})'}), 400
+        if ref_ext not in _MASTER_EXTENSIONS:
+            return jsonify({'error': f'Reference must be WAV, AIFF, or FLAC (got {ref_ext})'}), 400
+
+        try:
+            import matchering as mg
+        except ImportError:
+            return jsonify({'error': 'Matchering is not installed on this server'}), 500
+
+        if not _AUDIO_SEMAPHORE.acquire(blocking=False):
+            return jsonify({'error': 'Server is busy — please try again in a moment'}), 503
+
+        try:
+            target_data = target_file.read()
+            ref_data    = ref_file.read()
+
+            if len(target_data) > _AUDIO_MAX_BYTES or len(ref_data) > _AUDIO_MAX_BYTES:
+                return jsonify({'error': 'File too large. Maximum size is 100 MB'}), 400
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                target_path = os.path.join(tmpdir, f'target{target_ext}')
+                ref_path    = os.path.join(tmpdir, f'reference{ref_ext}')
+                output_path = os.path.join(tmpdir, 'mastered.wav')
+
+                with open(target_path, 'wb') as f:
+                    f.write(target_data)
+                with open(ref_path, 'wb') as f:
+                    f.write(ref_data)
+
+                mg.process(
+                    target=target_path,
+                    reference=ref_path,
+                    results=[mg.Result(output_path)],
+                )
+
+                with open(output_path, 'rb') as f:
+                    mastered_bytes = f.read()
+
+            output = io.BytesIO(mastered_bytes)
+            output.seek(0)
+
+            stem = os.path.splitext(os.path.basename(target_file.filename))[0]
+            download_name = f"{stem}-mastered.wav"
+
+            return send_file(
+                output,
+                mimetype='audio/wav',
+                as_attachment=True,
+                download_name=download_name,
+            )
+
+        except Exception as exc:
+            app.logger.error("Mastering failed: %s", exc, exc_info=True)
+            return jsonify({'error': f'Mastering failed: {exc}'}), 400
+
+        finally:
+            _AUDIO_SEMAPHORE.release()
 
     @app.errorhandler(413)
     def request_entity_too_large(error):

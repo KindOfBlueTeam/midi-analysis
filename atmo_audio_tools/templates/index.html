@@ -10,23 +10,50 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
 
-        <header>
-            <img src="{{ url_for('static', filename='img/atmo-records-logo-test.png') }}" alt="Atmo Records" class="header-logo">
-            <div class="header-text">
-                <h1>Atmo Audio Tools</h1>
-                <p class="subtitle">Upload and analyze your audio or MIDI files instantly</p>
+    <div class="app-shell">
+
+        <!-- ══════════════════════════ SIDEBAR ═══════════════════════════ -->
+        <aside class="sidebar">
+
+            <div class="sidebar-logo">
+                <img src="{{ url_for('static', filename='img/atmo-records-logo-test.png') }}" alt="Atmo Records" class="logo-img">
+                <div class="logo-wordmark">
+                    <span class="logo-title">Atmo Audio</span>
+                    <span class="logo-title">Tools</span>
+                </div>
             </div>
-        </header>
 
-        <!-- Tab Bar -->
-        <div class="tab-bar">
-            <button class="tab-btn active" data-tab="audio">Audio Analysis</button>
-            <button class="tab-btn" data-tab="midi">MIDI Analysis</button>
-        </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Tools</div>
 
-        <main>
+                <button class="tab-btn active" data-tab="audio">
+                    <span class="nav-icon">🎵</span>
+                    <span class="nav-label">Audio Analysis</span>
+                </button>
+
+                <button class="tab-btn" data-tab="midi">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-label">MIDI Analysis</span>
+                </button>
+
+                <button class="tab-btn" data-tab="master">
+                    <span class="nav-icon">🎚️</span>
+                    <span class="nav-label">Mastering</span>
+                </button>
+
+                <!-- Future tools will be added here -->
+            </nav>
+
+            <footer class="sidebar-footer">
+                <p>No files stored on server</p>
+                <p>© 2026 <a href="https://www.atmo-records.com" target="_blank" rel="noopener noreferrer">Atmo Records</a></p>
+            </footer>
+
+        </aside>
+
+        <!-- ══════════════════════════ MAIN ═══════════════════════════════ -->
+        <main class="main-content">
 
             <!-- ═══════════════════════════ MIDI TAB ═══════════════════════════ -->
             <div id="midiTab" class="tab-content" style="display:none;">
@@ -59,7 +86,6 @@
 
                 <section id="resultsSection" class="results-section" style="display: none;">
 
-                    <!-- MIDI file info line -->
                     <div class="file-info-line">
                         <span class="fi-name" id="resFileName"></span>
                         <span class="fi-sep">·</span>
@@ -158,7 +184,7 @@
 
                 <div id="errorSection" class="error-section" style="display: none;">
                     <div class="error-box">
-                        <h3>Error</h3>
+                        <h3>&#10008; Error</h3>
                         <p id="errorMessage"></p>
                         <button id="retryBtn" class="btn btn-primary">Try Again</button>
                     </div>
@@ -196,7 +222,6 @@
 
                 <section id="audioResultsSection" class="results-section" style="display:none;">
 
-                    <!-- Audio file info line -->
                     <div class="file-info-line">
                         <span class="fi-name" id="aResFile"></span>
                         <span class="fi-sep">·</span>
@@ -222,13 +247,11 @@
 
                     <div class="results-container">
 
-                        <!-- ① Energy Over Time — full-width, topmost -->
                         <div class="result-card full-width">
                             <h3>Energy Over Time</h3>
                             <div id="energyCurve" class="energy-chart energy-chart-wide"></div>
                         </div>
 
-                        <!-- ② Visual Overview — full-width, radar charts only -->
                         <div class="result-card full-width" id="audioRadarCard" style="display:none;">
                             <h3>Visual Overview</h3>
                             <div class="radar-row">
@@ -247,25 +270,21 @@
                             </div>
                         </div>
 
-                        <!-- ③ Pitch Distribution — full-width line chart -->
                         <div class="result-card full-width" id="pitchHistContainer">
                             <h3>Pitch Distribution</h3>
                             <div id="pitchHist"></div>
                         </div>
 
-                        <!-- ④ Bass Note Distribution — full-width line chart -->
                         <div class="result-card full-width" id="bassHistContainer">
                             <h3>Bass Note Distribution</h3>
                             <div id="bassHist"></div>
                         </div>
 
-                        <!-- ⑤ Frequency Balance — full-width line chart -->
                         <div class="result-card full-width" id="freqBandsContainer">
                             <h3>Frequency Balance</h3>
                             <div id="freqBands"></div>
                         </div>
 
-                        <!-- ⑥ Tonal Analysis — Tonality + Bass + Harmonic combined, full-width -->
                         <div class="result-card full-width">
                             <h3>Tonal Analysis</h3>
                             <div class="tonal-cols">
@@ -308,7 +327,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- hidden for JS compatibility -->
                             <div style="display:none;">
                                 <span id="candidateTonicsContainer"></span>
                                 <span id="harmonicRootCandidatesContainer"></span>
@@ -317,7 +335,6 @@
                             <div style="display:none;" id="harmonicRootCandidatesOuter"></div>
                         </div>
 
-                        <!-- BPM fields moved to file-info-line; hidden spans for JS compatibility -->
                         <div style="display:none;">
                             <span id="aResBeats"></span><span id="aResStability"></span>
                             <span id="aResTempoConf"></span><span id="aResDownbeat"></span>
@@ -326,7 +343,6 @@
                             <span id="tempoGroupsContainer"></span>
                         </div>
 
-                        <!-- ⑧ Loudness & Structure combined -->
                         <div class="result-card">
                             <h3>Loudness &amp; Structure</h3>
                             <div class="info-grid">
@@ -342,7 +358,6 @@
                             <div id="sectionsList" style="display:none;"></div>
                         </div>
 
-                        <!-- ⑨ Stereo — cone visualization -->
                         <div class="result-card">
                             <h3>Stereo &amp; Imaging</h3>
                             <div class="info-grid">
@@ -367,7 +382,7 @@
 
                 <div id="audioErrorSection" class="error-section" style="display:none;">
                     <div class="error-box">
-                        <h3>Error</h3>
+                        <h3>&#10008; Error</h3>
                         <p id="audioErrorMessage"></p>
                         <button id="audioRetryBtn" class="btn btn-primary">Try Again</button>
                     </div>
@@ -375,13 +390,80 @@
 
             </div><!-- /audioTab -->
 
+            <!-- ═══════════════════════════ MASTER TAB ══════════════════════════ -->
+            <div id="masterTab" class="tab-content" style="display:none;">
+
+                <section class="upload-section">
+                    <h2 class="section-heading">Reference Mastering</h2>
+                    <p class="section-sub">Upload your mix and a reference track. Atmo will match the loudness and tone of your reference.</p>
+
+                    <div class="master-upload-grid">
+
+                        <div class="master-slot">
+                            <div class="upload-box" id="masterTargetBox">
+                                <div class="upload-icon">🎵</div>
+                                <h3>Your Mix</h3>
+                                <p>WAV · AIFF · FLAC</p>
+                                <input type="file" id="masterTargetInput" accept=".wav,.aif,.aiff,.flac" hidden>
+                                <button id="masterTargetBrowseBtn" class="btn btn-primary">Choose File</button>
+                            </div>
+                            <div id="masterTargetFileName" class="file-name" style="display:none;"></div>
+                        </div>
+
+                        <div class="master-arrow">→</div>
+
+                        <div class="master-slot">
+                            <div class="upload-box" id="masterReferenceBox">
+                                <div class="upload-icon">🎼</div>
+                                <h3>Reference Track</h3>
+                                <p>WAV · AIFF · FLAC</p>
+                                <input type="file" id="masterReferenceInput" accept=".wav,.aif,.aiff,.flac" hidden>
+                                <button id="masterReferenceBrowseBtn" class="btn btn-primary">Choose File</button>
+                            </div>
+                            <div id="masterReferenceFileName" class="file-name" style="display:none;"></div>
+                        </div>
+
+                    </div>
+
+                    <div style="text-align:center; margin-top:1.5rem;">
+                        <button id="masterSubmitBtn" class="btn btn-analyze" style="display:none;">Master My Track</button>
+                    </div>
+                </section>
+
+                <div id="masterLoadingSpinner" class="spinner" style="display:none;">
+                    <div class="spinner-content">
+                        <div class="ripple-pond">
+                            <div class="ripple-ring"></div>
+                            <div class="ripple-ring"></div>
+                            <div class="ripple-ring"></div>
+                            <div class="ripple-ring"></div>
+                        </div>
+                        <p>Mastering your track…</p>
+                    </div>
+                </div>
+
+                <div id="masterResultSection" style="display:none;" class="results-section">
+                    <div class="result-card" style="text-align:center;">
+                        <h3>✅ Mastering Complete</h3>
+                        <p id="masterResultMsg" style="color:var(--text-2); margin-bottom:1.2rem;"></p>
+                        <a id="masterDownloadLink" class="btn btn-analyze" download>Download Mastered Track</a>
+                        <button id="masterResetBtn" class="btn btn-secondary" style="margin-left:0.75rem;">Master Another</button>
+                    </div>
+                </div>
+
+                <div id="masterErrorSection" style="display:none;" class="error-section">
+                    <div class="error-box">
+                        <h3>&#10008; Error</h3>
+                        <p id="masterErrorMessage"></p>
+                        <button id="masterRetryBtn" class="btn btn-primary">Try Again</button>
+                    </div>
+                </div>
+
+            </div><!-- /masterTab -->
+
         </main>
 
-        <footer>
-            <p>Comprehensive audio &amp; MIDI analysis &nbsp;·&nbsp; No files stored on server &nbsp;·&nbsp; © 2026 <a href="https://www.atmo-records.com" target="_blank" rel="noopener noreferrer">Atmo Records</a></p>
-        </footer>
-
-    </div>
+    </div><!-- /app-shell -->
 
     <!-- Humanize timing modal -->
     <div id="humanizeTimingModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="humanizeTimingModalTitle">

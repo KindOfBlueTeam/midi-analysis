@@ -665,12 +665,17 @@ def _compute_harmonic_root_scores(
 
 # ── Audio loader ──────────────────────────────────────────────────────────────
 
+_TARGET_SR   = 22050   # normalise all audio to this sample rate at load time
+_MAX_SECONDS = 600     # truncate files longer than 10 minutes before analysis
+
 def _load_audio(file_bytes: bytes, filename: str = '') -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """
     Load audio from raw bytes.
     Returns (y_left, y_right, y_mono, sr) — all float32, shape (N,).
     Tries soundfile first (WAV/AIFF/FLAC/OGG), then writes to a named temp
     file so librosa's audioread/ffmpeg fallback can read MP3 by file path.
+    Audio is resampled to _TARGET_SR and truncated to _MAX_SECONDS to keep
+    analysis time predictable on constrained servers.
     """
     buf = io.BytesIO(file_bytes)
     try:
@@ -678,27 +683,42 @@ def _load_audio(file_bytes: bytes, filename: str = '') -> tuple[np.ndarray, np.n
         y_mono  = librosa.to_mono(data.T)
         y_left  = data[:, 0]
         y_right = data[:, 1] if data.shape[1] >= 2 else data[:, 0]
-        return y_left, y_right, y_mono, int(sr)
     except Exception:
-        pass
+        # soundfile failed (e.g. MP3) — write to a named temp file so that
+        # librosa's audioread/ffmpeg fallback receives a real file path.
+        suffix = os.path.splitext(filename)[1] or '.audio'
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
+        try:
+            y_lr, sr = librosa.load(tmp_path, sr=_TARGET_SR, mono=False)
+        finally:
+            os.unlink(tmp_path)
 
-    # soundfile failed (e.g. MP3) — write to a named temp file so that
-    # librosa's audioread/ffmpeg fallback receives a real file path.
-    suffix = os.path.splitext(filename)[1] or '.audio'
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(file_bytes)
-        tmp_path = tmp.name
-    try:
-        y_lr, sr = librosa.load(tmp_path, sr=None, mono=False)
-    finally:
-        os.unlink(tmp_path)
+        if y_lr.ndim == 1:
+            y_left = y_right = y_mono = np.asarray(y_lr, dtype=np.float32)
+        else:
+            y_left  = np.asarray(y_lr[0], dtype=np.float32)
+            y_right = np.asarray(y_lr[1], dtype=np.float32)
+            y_mono  = librosa.to_mono(y_lr)
+        return y_left, y_right, y_mono, int(sr)
 
-    if y_lr.ndim == 1:
-        return y_lr, y_lr, y_lr, int(sr)
-    y_left  = np.asarray(y_lr[0], dtype=np.float32)
-    y_right = np.asarray(y_lr[1], dtype=np.float32)
-    y_mono  = librosa.to_mono(y_lr)
-    return y_left, y_right, y_mono, int(sr)
+    # Resample to target SR if needed (halves compute for 44100 Hz files).
+    sr = int(sr)
+    if sr != _TARGET_SR:
+        y_mono  = librosa.resample(y_mono,  orig_sr=sr, target_sr=_TARGET_SR)
+        y_left  = librosa.resample(y_left,  orig_sr=sr, target_sr=_TARGET_SR)
+        y_right = librosa.resample(y_right, orig_sr=sr, target_sr=_TARGET_SR)
+        sr = _TARGET_SR
+
+    # Truncate very long files to keep analysis time bounded.
+    max_samples = _MAX_SECONDS * sr
+    if len(y_mono) > max_samples:
+        y_mono  = y_mono[:max_samples]
+        y_left  = y_left[:max_samples]
+        y_right = y_right[:max_samples]
+
+    return y_left, y_right, y_mono, sr
 
 
 # ── Public entry point ────────────────────────────────────────────────────────

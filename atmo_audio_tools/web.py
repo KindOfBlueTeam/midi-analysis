@@ -29,11 +29,31 @@ _MASTER_SEMAPHORE = threading.Semaphore(1)
 
 # In-memory job store: job_id → job dict
 _MASTER_JOBS: dict = {}
+_LOUDNESS_JOBS: dict = {}
 _MASTER_JOB_TTL = 600  # seconds before temp files are cleaned up
+
+_LOUDNESS_PLATFORMS = {
+    'spotify':     {'name': 'Spotify',               'lufs': -14.0},
+    'apple_music': {'name': 'Apple Music',            'lufs': -16.0},
+    'youtube':     {'name': 'YouTube / YT Music',     'lufs': -14.0},
+    'tidal':       {'name': 'Tidal',                  'lufs': -14.0},
+    'amazon':      {'name': 'Amazon Music',           'lufs': -14.0},
+    'soundcloud':  {'name': 'SoundCloud',             'lufs': -14.0},
+    'deezer':      {'name': 'Deezer',                 'lufs': -15.0},
+    'pandora':     {'name': 'Pandora',                'lufs': -13.0},
+    'ebu_r128':    {'name': 'Broadcast (EBU R128)',   'lufs': -23.0},
+    'atsc_a85':    {'name': 'Broadcast (ATSC A/85)',  'lufs': -24.0},
+}
 
 
 def _cleanup_master_job(job_id: str) -> None:
     job = _MASTER_JOBS.pop(job_id, None)
+    if job and job.get('tmpdir'):
+        shutil.rmtree(job['tmpdir'], ignore_errors=True)
+
+
+def _cleanup_loudness_job(job_id: str) -> None:
+    job = _LOUDNESS_JOBS.pop(job_id, None)
     if job and job.get('tmpdir'):
         shutil.rmtree(job['tmpdir'], ignore_errors=True)
 
@@ -586,6 +606,106 @@ def create_app():
             mimetype='audio/wav',
             as_attachment=True,
             download_name=download_name,
+        )
+
+    @app.route('/api/loudness', methods=['POST'])
+    def loudness_normalize():
+        """
+        Normalize an audio file's integrated loudness to a platform target.
+
+        Expects multipart form with:
+          - 'audio': the audio file (WAV, AIFF, FLAC)
+          - 'platform': key from _LOUDNESS_PLATFORMS
+
+        Returns JSON with before/after stats and a job_id for download.
+        """
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['audio']
+        if not file or not file.filename:
+            return jsonify({'error': 'No file selected'}), 400
+
+        safe_name = os.path.basename(file.filename)
+        ext = os.path.splitext(safe_name)[1].lower()
+        if ext not in {'.wav', '.aif', '.aiff', '.flac'}:
+            return jsonify({'error': f'Unsupported format "{ext}". Use WAV, AIFF, or FLAC.'}), 400
+
+        platform_key = request.form.get('platform', 'spotify')
+        platform = _LOUDNESS_PLATFORMS.get(platform_key)
+        if not platform:
+            return jsonify({'error': f'Unknown platform "{platform_key}"'}), 400
+
+        try:
+            file_data = file.read()
+            if len(file_data) > _AUDIO_MAX_BYTES:
+                return jsonify({'error': 'File too large. Maximum size is 100 MB'}), 400
+
+            data, rate = sf.read(io.BytesIO(file_data), always_2d=True)
+            meter       = pyln.Meter(rate)
+            before_lufs = meter.integrated_loudness(data)
+
+            if before_lufs == float('-inf') or before_lufs != before_lufs:
+                return jsonify({'error': 'Could not measure loudness — file may be silent or too short'}), 400
+
+            target_lufs = platform['lufs']
+            normalized  = pyln.normalize.loudness(data, before_lufs, target_lufs)
+
+            # True peak limit at -1 dBFS to prevent clipping on boosts
+            peak_linear = float(np.max(np.abs(normalized)))
+            max_peak    = 10 ** (-1.0 / 20)  # ≈ 0.8913
+            clamped     = peak_linear > max_peak
+            if clamped:
+                normalized = normalized * (max_peak / peak_linear)
+
+            after_lufs  = float(meter.integrated_loudness(normalized))
+            before_peak = round(20 * np.log10(max(float(np.max(np.abs(data))), 1e-9)), 1)
+            after_peak  = round(20 * np.log10(max(float(np.max(np.abs(normalized))), 1e-9)), 1)
+            gain_db     = round(target_lufs - float(before_lufs), 1)
+
+            # Write output to temp file
+            stem = os.path.splitext(safe_name)[0]
+            platform_slug = platform_key.replace('_', '-')
+            download_name = f'{stem}-{platform_slug}.wav'
+
+            tmpdir     = tempfile.mkdtemp()
+            out_path   = os.path.join(tmpdir, download_name)
+            sf.write(out_path, normalized, rate, subtype='PCM_24')
+
+            job_id = str(uuid.uuid4())
+            _LOUDNESS_JOBS[job_id] = {'tmpdir': tmpdir, 'download_name': download_name}
+            Timer(_MASTER_JOB_TTL, _cleanup_loudness_job, args=[job_id]).start()
+
+            return jsonify({
+                'job_id':       job_id,
+                'before_lufs':  round(float(before_lufs), 1),
+                'after_lufs':   round(after_lufs, 1),
+                'before_peak':  before_peak,
+                'after_peak':   after_peak,
+                'gain_db':      gain_db,
+                'clamped':      clamped,
+                'target_lufs':  target_lufs,
+                'platform':     platform['name'],
+                'download_name': download_name,
+            }), 200
+
+        except Exception as exc:
+            app.logger.error("Loudness normalization failed: %s", exc, exc_info=True)
+            return jsonify({'error': f'Normalization failed: {exc}'}), 400
+
+    @app.route('/api/loudness/download/<job_id>')
+    def loudness_download(job_id):
+        """Download the loudness-normalized file."""
+        job = _LOUDNESS_JOBS.get(job_id)
+        if not job:
+            return jsonify({'error': 'Job not found or expired'}), 404
+
+        out_path = os.path.join(job['tmpdir'], job['download_name'])
+        return send_file(
+            out_path,
+            mimetype='audio/wav',
+            as_attachment=True,
+            download_name=job['download_name'],
         )
 
     @app.errorhandler(413)

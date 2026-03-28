@@ -42,7 +42,10 @@
                     <span class="nav-label">Mastering</span>
                 </button>
 
-                <!-- Future tools will be added here -->
+                <button class="tab-btn" data-tab="loudness">
+                    <span class="nav-icon">📢</span>
+                    <span class="nav-label">Loudness</span>
+                </button>
             </nav>
 
             <footer class="sidebar-footer">
@@ -491,6 +494,79 @@
                 </div>
 
             </div><!-- /masterTab -->
+
+            <!-- ══════════════════════════ LOUDNESS TAB ════════════════════════ -->
+            <div id="loudnessTab" class="tab-content" style="display:none;">
+
+                <div class="tool-intro">
+                    <h2 class="tool-intro-heading">Loudness Normalizer</h2>
+                    <div class="tool-intro-body">
+                        <p>Every streaming platform has a loudness target it normalizes tracks to before playback. If your track is louder than the target, the platform turns it down automatically — and if it's quieter, listeners may turn it up manually, which can expose unwanted noise.</p>
+                        <p>This tool measures the average loudness of your file and adjusts it to match the guidelines of the platform you're releasing on, so your music arrives exactly as intended.</p>
+                        <p class="tool-intro-analogy">Think of it like adjusting the volume on your hi-fi so a record sounds right in your room — not too loud, not too quiet, just where it was meant to be heard.</p>
+                    </div>
+                </div>
+
+                <section class="upload-section">
+
+                    <div class="upload-box" id="loudnessUploadBox">
+                        <div class="upload-icon">📢</div>
+                        <h2>Upload Audio File</h2>
+                        <p>WAV · AIFF · FLAC</p>
+                        <input type="file" id="loudnessInput" accept=".wav,.aif,.aiff,.flac" hidden>
+                        <button id="loudnessBrowseBtn" class="btn btn-primary">Choose File</button>
+                    </div>
+
+                    <div id="loudnessFileName" class="file-name" style="display:none;"></div>
+
+                    <div id="loudnessPlatformSection" class="loudness-platform-section" style="display:none;">
+                        <div class="loudness-select-row">
+                            <label for="loudnessPlatform" class="loudness-label">Target Platform</label>
+                            <select id="loudnessPlatform" class="loudness-select">
+                                <option value="spotify">Spotify — −14 LUFS</option>
+                                <option value="apple_music">Apple Music — −16 LUFS</option>
+                                <option value="youtube">YouTube / YT Music — −14 LUFS</option>
+                                <option value="tidal">Tidal — −14 LUFS</option>
+                                <option value="amazon">Amazon Music — −14 LUFS</option>
+                                <option value="soundcloud">SoundCloud — −14 LUFS</option>
+                                <option value="deezer">Deezer — −15 LUFS</option>
+                                <option value="pandora">Pandora — −13 LUFS</option>
+                                <option value="ebu_r128">Broadcast (EBU R128) — −23 LUFS</option>
+                                <option value="atsc_a85">Broadcast (ATSC A/85) — −24 LUFS</option>
+                            </select>
+                        </div>
+                        <button id="loudnessNormalizeBtn" class="btn btn-cta">Normalize</button>
+                    </div>
+
+                </section>
+
+                <div id="loudnessResult" class="loudness-result" style="display:none;">
+                    <div class="loudness-result-inner">
+                        <div class="loudness-done-title">✅ Normalization Complete</div>
+                        <p id="loudnessResultMsg" class="loudness-done-sub"></p>
+                        <table class="mrm-table">
+                            <thead><tr><th></th><th>Before</th><th></th><th>After</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mrm-label">LUFS</td><td id="lBefore-lufs" class="mrm-before">—</td><td class="mrm-arr">→</td><td id="lAfter-lufs" class="mrm-after">—</td></tr>
+                                <tr><td class="mrm-label">Peak</td><td id="lBefore-peak" class="mrm-before">—</td><td class="mrm-arr">→</td><td id="lAfter-peak" class="mrm-after">—</td></tr>
+                                <tr><td class="mrm-label">Gain applied</td><td colspan="3" id="lGainApplied" class="mrm-after">—</td></tr>
+                            </tbody>
+                        </table>
+                        <p id="loudnessClampedMsg" class="loudness-clamped-msg" style="display:none;">⚠️ True peak was limited to −1 dBFS to prevent clipping.</p>
+                        <a id="loudnessDownloadLink" class="btn btn-master-cta loudness-dl-btn" download>Download</a>
+                        <button id="loudnessResetBtn" class="btn btn-secondary">Normalize Another</button>
+                    </div>
+                </div>
+
+                <div id="loudnessErrorSection" style="display:none;" class="error-section">
+                    <div class="error-box">
+                        <h3>&#10008; Error</h3>
+                        <p id="loudnessErrorMessage"></p>
+                        <button id="loudnessRetryBtn" class="btn btn-primary">Try Again</button>
+                    </div>
+                </div>
+
+            </div><!-- /loudnessTab -->
 
         </main>
 

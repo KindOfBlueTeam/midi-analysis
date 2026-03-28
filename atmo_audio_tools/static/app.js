@@ -6,6 +6,7 @@ class MIDIAnalysisApp {
         this.audioFile = null;
         this.masterTargetFile    = null;
         this.masterReferenceFile = null;
+        this.loudnessFile        = null;
         this.analysisResult = null;
         this.activeTab = 'audio';
 
@@ -65,6 +66,22 @@ class MIDIAnalysisApp {
             masterErrorSection:     document.getElementById('masterErrorSection'),
             masterErrorMessage:     document.getElementById('masterErrorMessage'),
             masterRetryBtn:         document.getElementById('masterRetryBtn'),
+            // Loudness tab
+            loudnessUploadBox:       document.getElementById('loudnessUploadBox'),
+            loudnessInput:           document.getElementById('loudnessInput'),
+            loudnessBrowseBtn:       document.getElementById('loudnessBrowseBtn'),
+            loudnessFileName:        document.getElementById('loudnessFileName'),
+            loudnessPlatformSection: document.getElementById('loudnessPlatformSection'),
+            loudnessPlatform:        document.getElementById('loudnessPlatform'),
+            loudnessNormalizeBtn:    document.getElementById('loudnessNormalizeBtn'),
+            loudnessResult:          document.getElementById('loudnessResult'),
+            loudnessResultMsg:       document.getElementById('loudnessResultMsg'),
+            loudnessDownloadLink:    document.getElementById('loudnessDownloadLink'),
+            loudnessResetBtn:        document.getElementById('loudnessResetBtn'),
+            loudnessErrorSection:    document.getElementById('loudnessErrorSection'),
+            loudnessErrorMessage:    document.getElementById('loudnessErrorMessage'),
+            loudnessRetryBtn:        document.getElementById('loudnessRetryBtn'),
+            loudnessClampedMsg:      document.getElementById('loudnessClampedMsg'),
         };
     }
 
@@ -271,6 +288,29 @@ class MIDIAnalysisApp {
         this.elements.masterSubmitBtn.addEventListener('click', () => this.submitMastering());
         this.elements.masterResetBtn.addEventListener('click', () => this.resetMaster());
         this.elements.masterRetryBtn.addEventListener('click', () => this.resetMaster());
+
+        // Loudness tab
+        this.elements.loudnessBrowseBtn.addEventListener('click', () => {
+            this.elements.loudnessInput.click();
+        });
+        this.elements.loudnessInput.addEventListener('change', (e) => {
+            this.handleLoudnessFileSelect(e.target.files[0]);
+        });
+        this.elements.loudnessUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.elements.loudnessUploadBox.classList.add('dragover');
+        });
+        this.elements.loudnessUploadBox.addEventListener('dragleave', () => {
+            this.elements.loudnessUploadBox.classList.remove('dragover');
+        });
+        this.elements.loudnessUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.loudnessUploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) this.handleLoudnessFileSelect(e.dataTransfer.files[0]);
+        });
+        this.elements.loudnessNormalizeBtn.addEventListener('click', () => this.submitLoudness());
+        this.elements.loudnessResetBtn.addEventListener('click', () => this.resetLoudness());
+        this.elements.loudnessRetryBtn.addEventListener('click', () => this.resetLoudness());
     }
 
     handleFileSelect(file) {
@@ -1026,6 +1066,81 @@ class MIDIAnalysisApp {
 
     hideMasterError() {
         this.elements.masterErrorSection.style.display = 'none';
+    }
+
+    // ── Loudness tab ──────────────────────────────────────────────────────────
+
+    handleLoudnessFileSelect(file) {
+        if (!file) return;
+        if (!/\.(wav|aif|aiff|flac)$/i.test(file.name)) {
+            this.showLoudnessError('Please select a WAV, AIFF, or FLAC file.');
+            return;
+        }
+        this.loudnessFile = file;
+        this.elements.loudnessFileName.textContent    = file.name;
+        this.elements.loudnessFileName.style.display  = 'block';
+        this.elements.loudnessPlatformSection.style.display = 'flex';
+        this.elements.loudnessResult.style.display    = 'none';
+        this.hideLoudnessError();
+    }
+
+    async submitLoudness() {
+        if (!this.loudnessFile) return;
+
+        const platform = this.elements.loudnessPlatform.value;
+        const formData = new FormData();
+        formData.append('audio', this.loudnessFile);
+        formData.append('platform', platform);
+
+        this.showGlobalLoading('Normalizing loudness…');
+        this.elements.loudnessNormalizeBtn.disabled = true;
+        this.hideLoudnessError();
+
+        try {
+            const resp = await fetch('/api/loudness', { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Normalization failed');
+
+            const fmt = (v, unit) => v == null ? '—' : `${v > 0 ? '+' : ''}${v} ${unit}`;
+            document.getElementById('lBefore-lufs').textContent = fmt(data.before_lufs, 'LUFS');
+            document.getElementById('lAfter-lufs').textContent  = fmt(data.after_lufs,  'LUFS');
+            document.getElementById('lBefore-peak').textContent = fmt(data.before_peak, 'dBFS');
+            document.getElementById('lAfter-peak').textContent  = fmt(data.after_peak,  'dBFS');
+            document.getElementById('lGainApplied').textContent = fmt(data.gain_db,     'dB');
+
+            this.elements.loudnessResultMsg.textContent = `${this.loudnessFile.name} → ${data.platform}`;
+            this.elements.loudnessClampedMsg.style.display = data.clamped ? 'block' : 'none';
+
+            this.elements.loudnessDownloadLink.href     = `/api/loudness/download/${data.job_id}`;
+            this.elements.loudnessDownloadLink.download = data.download_name;
+
+            this.elements.loudnessPlatformSection.style.display = 'none';
+            this.elements.loudnessResult.style.display = 'block';
+        } catch (err) {
+            this.showLoudnessError(err.message);
+        } finally {
+            this.hideGlobalLoading();
+            this.elements.loudnessNormalizeBtn.disabled = false;
+        }
+    }
+
+    resetLoudness() {
+        this.loudnessFile = null;
+        this.elements.loudnessInput.value             = '';
+        this.elements.loudnessFileName.style.display  = 'none';
+        this.elements.loudnessFileName.textContent    = '';
+        this.elements.loudnessPlatformSection.style.display = 'none';
+        this.elements.loudnessResult.style.display    = 'none';
+        this.hideLoudnessError();
+    }
+
+    showLoudnessError(msg) {
+        this.elements.loudnessErrorMessage.textContent   = msg;
+        this.elements.loudnessErrorSection.style.display = 'block';
+    }
+
+    hideLoudnessError() {
+        this.elements.loudnessErrorSection.style.display = 'none';
     }
 
     // ── Audio results display ─────────────────────────────────────────────────

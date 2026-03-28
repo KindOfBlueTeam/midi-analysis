@@ -11,4 +11,4 @@ numba>=0.57,<0.62
 matchering>=2.0
 music21>=8.1
 verovio>=3.14
-demucs>=4.0
+demucs==4.0.0

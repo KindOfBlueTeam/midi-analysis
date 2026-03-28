@@ -236,10 +236,12 @@ def create_app():
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; style-src 'self' 'unsafe-inline'; "
-            "script-src 'self'; img-src 'self' data:; "
+            "default-src 'self'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "script-src 'self'; "
+            "img-src 'self' data:; "
             "font-src 'self' https://fonts.gstatic.com; "
-            "connect-src 'self' https://fonts.googleapis.com"
+            "connect-src 'self'"
         )
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         response.headers['Referrer-Policy'] = 'no-referrer'

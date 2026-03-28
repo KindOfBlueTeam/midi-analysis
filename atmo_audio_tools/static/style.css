@@ -447,25 +447,15 @@ body::before {
     top: 1rem;
     right: 1.25rem;
     z-index: 999;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 1rem;
-    background: #FFDD00;
-    border-radius: 6px;
-    color: #000000;
-    font-family: 'Cookie', 'Josefin Slab', cursive;
-    font-size: 1.1rem;
-    font-weight: 400;
-    text-decoration: none;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+    display: block;
+    line-height: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.40);
+    transition: box-shadow 0.15s, transform 0.15s;
 }
 
 .bmc-btn:hover {
-    background: #ffe833;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
     transform: translateY(-1px);
 }
 

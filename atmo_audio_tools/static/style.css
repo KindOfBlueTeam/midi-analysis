@@ -1236,11 +1236,9 @@ body::before {
 
 .tool-preview-img {
     position: absolute;
-    width: calc(80% + 20vw);
-    max-width: 1400px;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
+    width: auto;
+    max-width: none;
+    height: 340px;
     top: 0;
     left: 50%;
     transform: translateX(-50%);

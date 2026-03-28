@@ -1019,7 +1019,7 @@ def create_app():
             download_name=f"{job['filename']}-stems.zip",
         )
 
-    _MIDI_EXAMPLES_DIR = Path(__file__).parent.parent / 'midi_examples'
+    _MIDI_EXAMPLES_DIR = Path(__file__).parent / 'static' / 'midi_examples'
 
     @app.route('/api/synth/demos')
     def synth_demos():

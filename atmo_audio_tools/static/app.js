@@ -44,6 +44,7 @@ class MIDIAnalysisApp {
             humanizeTimingModal: document.getElementById('humanizeTimingModal'),
             cancelHumanizeTimingBtn: document.getElementById('cancelHumanizeTimingBtn'),
             // Audio tab
+            audioPreview:         document.getElementById('audioPreview'),
             audioUploadBox:       document.getElementById('audioUploadBox'),
             audioInput:           document.getElementById('audioInput'),
             audioBrowseBtn:       document.getElementById('audioBrowseBtn'),
@@ -73,6 +74,7 @@ class MIDIAnalysisApp {
             masterErrorMessage:     document.getElementById('masterErrorMessage'),
             masterRetryBtn:         document.getElementById('masterRetryBtn'),
             // Loudness tab
+            loudnessPreview:         document.getElementById('loudnessPreview'),
             loudnessUploadBox:       document.getElementById('loudnessUploadBox'),
             loudnessInput:           document.getElementById('loudnessInput'),
             loudnessBrowseBtn:       document.getElementById('loudnessBrowseBtn'),
@@ -89,6 +91,7 @@ class MIDIAnalysisApp {
             loudnessRetryBtn:        document.getElementById('loudnessRetryBtn'),
             loudnessClampedMsg:      document.getElementById('loudnessClampedMsg'),
             // Sheet tab
+            sheetPreview:      document.getElementById('sheetPreview'),
             sheetUploadBox:    document.getElementById('sheetUploadBox'),
             sheetInput:        document.getElementById('sheetInput'),
             sheetBrowseBtn:    document.getElementById('sheetBrowseBtn'),
@@ -104,6 +107,7 @@ class MIDIAnalysisApp {
             sheetErrorMessage: document.getElementById('sheetErrorMessage'),
             sheetRetryBtn:     document.getElementById('sheetRetryBtn'),
             // Spectrogram tab
+            spectrogramPreview: document.getElementById('spectrogramPreview'),
             specUploadBox:      document.getElementById('specUploadBox'),
             specInput:          document.getElementById('specInput'),
             specBrowseBtn:      document.getElementById('specBrowseBtn'),
@@ -1056,6 +1060,7 @@ class MIDIAnalysisApp {
             return;
         }
         this.audioFile = file;
+        this.elements.audioPreview.style.display = 'none';
         this.elements.audioUploadBox.style.display = 'none';
         this.elements.audioFileName.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
         this.elements.audioFileName.style.display = 'block';
@@ -1241,6 +1246,7 @@ class MIDIAnalysisApp {
             return;
         }
         this.loudnessFile = file;
+        this.elements.loudnessPreview.style.display = 'none';
         this.elements.loudnessUploadBox.style.display = 'none';
         this.elements.loudnessFileName.textContent    = file.name;
         this.elements.loudnessFileName.style.display  = 'block';
@@ -1291,6 +1297,7 @@ class MIDIAnalysisApp {
 
     resetLoudness() {
         this.loudnessFile = null;
+        this.elements.loudnessPreview.style.display   = '';
         this.elements.loudnessUploadBox.style.display = '';
         this.elements.loudnessInput.value             = '';
         this.elements.loudnessFileName.style.display  = 'none';
@@ -1318,6 +1325,7 @@ class MIDIAnalysisApp {
             return;
         }
         this.sheetFile = file;
+        this.elements.sheetPreview.style.display = 'none';
         this.elements.sheetUploadBox.style.display = 'none';
         this.elements.sheetFileName.textContent   = file.name;
         this.elements.sheetFileName.style.display = 'block';
@@ -1370,6 +1378,7 @@ class MIDIAnalysisApp {
 
     resetSheet() {
         this.sheetFile = null;
+        this.elements.sheetPreview.style.display     = '';
         this.elements.sheetUploadBox.style.display  = '';
         this.elements.sheetInput.value              = '';
         this.elements.sheetFileName.style.display   = 'none';
@@ -1505,6 +1514,7 @@ class MIDIAnalysisApp {
             return;
         }
         this.specFile = file;
+        this.elements.spectrogramPreview.style.display = 'none';
         this.elements.specUploadBox.style.display = 'none';
         this.elements.specFileName.textContent   = `${file.name} (${this.formatFileSize(file.size)})`;
         this.elements.specFileName.style.display = 'block';
@@ -1697,6 +1707,7 @@ class MIDIAnalysisApp {
     resetSpectrogram() {
         this.specFile = null;
         this._lastSpectrogramData = null;
+        this.elements.spectrogramPreview.style.display = '';
         this.elements.specUploadBox.style.display      = '';
         this.elements.specInput.value                  = '';
         this.elements.specFileName.style.display       = 'none';
@@ -2343,6 +2354,7 @@ class MIDIAnalysisApp {
         this.elements.audioResultsSection.style.display = 'none';
         this.hideAudioError();
         this.elements.audioInput.value = '';
+        this.elements.audioPreview.style.display = '';
         this.elements.audioUploadBox.style.display = '';
         this.elements.audioFileName.style.display = 'none';
         this.elements.audioAnalyzeBtn.style.display = 'none';

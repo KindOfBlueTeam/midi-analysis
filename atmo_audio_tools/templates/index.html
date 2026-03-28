@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Slab:ital,wght@0,100;0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/atmo-logo-no-text.png') }}">
 </head>
 <body>
 
@@ -271,7 +272,7 @@
                     </div>
                 </div>
 
-                <div class="tool-preview">
+                <div class="tool-preview" id="audioPreview">
                     <img src="{{ url_for('static', filename='img/example-audio-analysis-tool.png') }}" alt="Audio Analysis example" class="tool-preview-img">
                 </div>
 
@@ -572,7 +573,7 @@
                     </div>
                 </div>
 
-                <div class="tool-preview">
+                <div class="tool-preview" id="loudnessPreview">
                     <img src="{{ url_for('static', filename='img/example-loudness-tool.png') }}" alt="Loudness Normalizer example" class="tool-preview-img">
                 </div>
 
@@ -652,7 +653,7 @@
                     </div>
                 </div>
 
-                <div class="tool-preview">
+                <div class="tool-preview" id="sheetPreview">
                     <img src="{{ url_for('static', filename='img/example-midi-to-sheet-tool.png') }}" alt="MIDI to Sheet Music example" class="tool-preview-img">
                 </div>
 
@@ -764,7 +765,7 @@
                     </div>
                 </div>
 
-                <div class="tool-preview">
+                <div class="tool-preview" id="spectrogramPreview">
                     <img src="{{ url_for('static', filename='img/example-spectrogram-tool.png') }}" alt="Spectrogram example" class="tool-preview-img">
                 </div>
 

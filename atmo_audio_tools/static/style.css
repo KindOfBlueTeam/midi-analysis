@@ -2185,3 +2185,344 @@ body::before {
     color: var(--text-3);
     letter-spacing: 0.06em;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TR-808 Drum Machine
+═══════════════════════════════════════════════════════════════════ */
+
+.drum-engine {
+    padding: 0 2.5rem 3rem;
+}
+
+.drum-machine {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.4rem 1.2rem;
+    overflow-x: auto;
+}
+
+/* ── Transport / controls bar ──────────────────────────────────── */
+
+.drum-header {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.4rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.drum-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: var(--text-2);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.drum-ctrl-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.drum-swing-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.drum-swing-group .drum-label {
+    margin-bottom: 0;
+    align-self: center;
+}
+
+.drum-swing-val {
+    font-size: 0.70rem;
+    color: var(--gold-soft);
+    min-width: 2.2rem;
+}
+
+.drum-transport {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+    margin-top: auto;
+}
+
+.drum-preset-group {
+    flex-direction: column;
+}
+
+/* BPM input */
+.drum-bpm-input {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    color: var(--text-1);
+    font-family: inherit;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.4rem;
+    width: 4.4rem;
+    text-align: center;
+}
+
+.drum-bpm-input:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+/* Swing slider */
+.drum-swing-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(200, 150, 12, 0.22);
+    cursor: pointer;
+}
+
+.drum-swing-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+}
+
+/* Preset select */
+.drum-preset-select {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    color: var(--text-1);
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 0.28rem 0.5rem;
+    cursor: pointer;
+}
+
+.drum-preset-select:focus { outline: none; border-color: var(--gold); }
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+
+.drum-btn {
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.38rem 0.85rem;
+    border-radius: 4px;
+    border: 1px solid var(--card-border);
+    background: rgba(8, 14, 28, 0.60);
+    color: var(--text-1);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s;
+}
+
+.drum-play-btn {
+    background: rgba(0, 80, 40, 0.40);
+    border-color: rgba(50, 200, 100, 0.30);
+    color: rgba(100, 210, 140, 0.85);
+}
+
+.drum-play-btn:hover {
+    background: rgba(0, 100, 50, 0.55);
+    border-color: rgba(60, 220, 110, 0.50);
+    color: #88ffb8;
+}
+
+.drum-play-btn.active {
+    background: rgba(0, 110, 50, 0.55);
+    border-color: rgba(60, 230, 120, 0.70);
+    color: #88ffb8;
+    box-shadow: 0 0 12px rgba(0, 200, 80, 0.35);
+}
+
+.drum-stop-btn {
+    background: rgba(60, 0, 0, 0.40);
+    border-color: rgba(180, 40, 40, 0.30);
+    color: rgba(220, 100, 100, 0.80);
+}
+
+.drum-stop-btn:hover {
+    background: rgba(90, 0, 0, 0.55);
+    border-color: rgba(220, 60, 60, 0.50);
+    color: #ffaaaa;
+}
+
+.drum-action-btn {
+    border-color: rgba(200, 150, 12, 0.25);
+    color: var(--text-2);
+}
+
+.drum-action-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold-soft);
+    background: rgba(200, 150, 12, 0.10);
+}
+
+/* ── Grid rows ──────────────────────────────────────────────────── */
+
+.drum-index-row,
+.drum-row {
+    display: grid;
+    grid-template-columns: 108px 1fr 70px;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 3px;
+}
+
+.drum-index-row {
+    margin-bottom: 6px;
+}
+
+.drum-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 3px;
+}
+
+/* ── Name column ────────────────────────────────────────────────── */
+
+.drum-name-col {
+    padding-right: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.drum-inst-name {
+    font-size: 0.65rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--ic, var(--text-2));
+    opacity: 0.75;
+    white-space: nowrap;
+}
+
+/* ── Step index numbers ─────────────────────────────────────────── */
+
+.drum-step-idx {
+    text-align: center;
+    font-size: 0.52rem;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    padding-bottom: 2px;
+}
+
+.drum-step-idx.beat-start {
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+/* ── Step buttons ───────────────────────────────────────────────── */
+
+.drum-step {
+    width: 100%;
+    aspect-ratio: 1;
+    min-width: 22px;
+    max-width: 52px;
+    border-radius: 3px;
+    border: 1px solid rgba(200, 150, 12, 0.12);
+    background: rgba(6, 9, 15, 0.70);
+    cursor: pointer;
+    transition: background 0.08s, border-color 0.08s, box-shadow 0.08s;
+    padding: 0;
+    position: relative;
+}
+
+/* Beat-group accent — every 4 steps get slightly lighter bg */
+.drum-step.beat-start {
+    border-left-color: rgba(200, 150, 12, 0.22);
+}
+
+.drum-step:hover {
+    background: rgba(200, 150, 12, 0.12);
+    border-color: rgba(200, 150, 12, 0.35);
+}
+
+/* Active (step has a hit) */
+.drum-step.active {
+    background: rgba(200, 140, 10, 0.42);
+    border-color: rgba(240, 180, 20, 0.65);
+    box-shadow: inset 0 1px 0 rgba(255, 200, 60, 0.18),
+                0 0 6px rgba(200, 150, 12, 0.30);
+}
+
+/* Accent (shift+click) */
+.drum-step.accent {
+    background: rgba(255, 200, 50, 0.65);
+    border-color: rgba(255, 230, 100, 0.90);
+    box-shadow: inset 0 1px 0 rgba(255, 240, 150, 0.30),
+                0 0 10px rgba(240, 190, 20, 0.55),
+                0 0 18px rgba(200, 150, 12, 0.30);
+}
+
+.drum-step.accent::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2px;
+    background: rgba(255, 240, 180, 0.18);
+}
+
+/* Current step (playhead) */
+.drum-step.playing {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+    box-shadow: 0 0 10px rgba(0, 153, 255, 0.55), 0 0 20px rgba(0, 153, 255, 0.25);
+}
+
+.drum-step.active.playing {
+    outline-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.65), 0 0 22px rgba(0, 153, 255, 0.30);
+}
+
+/* ── Volume column ──────────────────────────────────────────────── */
+
+.drum-vol-col {
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.drum-vol-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(200, 150, 12, 0.18);
+    cursor: pointer;
+}
+
+.drum-vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.drum-vol-slider:hover::-webkit-slider-thumb {
+    background: var(--gold);
+}
+
+/* ── Footer hint ────────────────────────────────────────────────── */
+
+.drum-hint {
+    margin-top: 1.1rem;
+    font-size: 0.65rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-align: center;
+}

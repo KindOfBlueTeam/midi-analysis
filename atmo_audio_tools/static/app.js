@@ -1039,6 +1039,7 @@ class MIDIAnalysisApp {
         document.getElementById('spectrogramTab').style.display   = tab === 'spectrogram' ? '' : 'none';
         document.getElementById('synthTab').style.display          = tab === 'synth'        ? '' : 'none';
         document.getElementById('convertTab').style.display        = tab === 'convert'      ? '' : 'none';
+        document.getElementById('drumTab').style.display           = tab === 'drum'         ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────

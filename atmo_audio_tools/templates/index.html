@@ -61,6 +61,9 @@
                     <button class="tab-btn premium" data-tab="synth">
                         <span class="nav-label">Atmo Synth</span>
                     </button>
+                    <button class="tab-btn premium" data-tab="drum">
+                        <span class="nav-label">TR-808</span>
+                    </button>
                 </div>
 
             </nav>
@@ -854,6 +857,26 @@
 
             </div><!-- /synthTab -->
 
+            <!-- ══════════════════════ TR-808 DRUM MACHINE ════════════════════ -->
+            <div id="drumTab" class="tab-content" style="display:none;">
+
+                <div class="page-banner">
+                    <img src="{{ url_for('static', filename='img/mixing-console.png') }}" alt="">
+                </div>
+
+                <div class="tool-intro">
+                    <h2 class="tool-intro-heading">TR-808 Drum Machine <span class="premium-badge">Premium</span></h2>
+                    <div class="tool-intro-body">
+                        <p>A faithful emulation of the Roland TR-808, the drum machine that defined hip-hop, techno, and electronic music. Every sound — kick, snare, hi-hats, toms, cowbell, clap, and cymbal — is synthesized live in your browser using the Web Audio API, no samples required.</p>
+                        <p>Load a preset pattern or build your own by clicking the 16 steps in each row. <strong>Shift+click</strong> an active step to add an accent for a louder hit. Dial in BPM and swing, then export your loop as a MIDI file to drop straight into your DAW.</p>
+                        <p class="tool-intro-analogy">Think of it like the drum machine in every classic record you love — now in your hands.</p>
+                    </div>
+                </div>
+
+                <div id="drumEngine" class="drum-engine"></div>
+
+            </div><!-- /drumTab -->
+
         </main>
 
     </div><!-- /app-shell -->
@@ -887,6 +910,7 @@
     </div>
 
     <script src="{{ url_for('static', filename='synth.js') }}"></script>
+    <script src="{{ url_for('static', filename='drum808.js') }}"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

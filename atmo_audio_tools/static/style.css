@@ -1071,11 +1071,28 @@ body::before {
 /* ── Tool preview screenshot ───────────────────────────────────── */
 
 .tool-preview {
+    position: relative;
     margin-bottom: 2.5rem;
     border-radius: var(--radius);
     overflow: hidden;
     border: 1px solid var(--card-border);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.tool-preview::after {
+    content: 'EXAMPLE';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    color: rgba(200, 150, 12, 0.18);
+    text-transform: uppercase;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
 }
 
 .tool-preview-img {

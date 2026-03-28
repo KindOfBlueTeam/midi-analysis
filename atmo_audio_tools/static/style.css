@@ -156,21 +156,45 @@ body::before {
     padding: 0.55rem 0.4rem 0.4rem;
 }
 
-.nav-group-premium {
+/* Per-section tints */
+.nav-group-analysis {
+    border-color: rgba(40, 100, 255, 0.14);
+    background: rgba(0, 10, 40, 0.22);
+}
+
+.nav-group-conversions {
+    border-color: rgba(210, 140, 20, 0.18);
+    background: rgba(40, 22, 0, 0.22);
+}
+
+.nav-group-engineering {
     border-color: rgba(200, 0, 0, 0.14);
     background: rgba(40, 0, 0, 0.18);
+}
+
+.nav-group-performance {
+    border-color: rgba(120, 60, 220, 0.18);
+    background: rgba(18, 0, 42, 0.28);
 }
 
 .nav-group-label {
     font-size: 0.56rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
-    color: rgba(200, 150, 12, 0.45);
+    color: rgba(200, 150, 12, 0.50);
     padding: 0 0.35rem 0.45rem;
 }
 
-.nav-group-label-premium {
-    color: rgba(255, 90, 90, 0.45);
+.nav-group-label-conversions {
+    color: rgba(220, 160, 40, 0.55);
+}
+
+.nav-group-label-engineering {
+    color: rgba(255, 90, 90, 0.50);
+}
+
+.nav-group-label-performance {
+    color: rgba(160, 100, 255, 0.55);
 }
 
 /* Disabled/coming-soon nav button */
@@ -192,7 +216,8 @@ body::before {
     padding: 0.1rem 0.35rem;
 }
 
-/* Tab buttons — studio console LED, blue */
+/* Tab buttons — studio console LED style */
+/* Base: Analysis — blue */
 .tab-btn {
     display: flex;
     align-items: center;
@@ -205,7 +230,7 @@ body::before {
     border-left:   1px solid rgba(40, 80, 200, 0.18);
     border-right:  1px solid rgba(40, 80, 200, 0.18);
     border-radius: 3px;
-    color: rgba(120, 170, 255, 0.42);
+    color: rgba(140, 185, 255, 0.72);
     font-family: inherit;
     font-size: 0.78rem;
     font-weight: 800;
@@ -222,7 +247,7 @@ body::before {
 }
 
 .tab-btn:hover:not(.active) {
-    color: rgba(160, 200, 255, 0.65);
+    color: rgba(180, 215, 255, 0.90);
     background: #060f22;
     box-shadow:
         0 0 10px rgba(0, 100, 255, 0.18),
@@ -245,10 +270,49 @@ body::before {
         inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
-/* Premium tab buttons — red LED, same structure as blue but red */
+/* Conversions — amber LED */
+.tab-btn.amber {
+    background: #100800;
+    color: rgba(230, 170, 50, 0.72);
+    border-top:    2px solid rgba(220, 160, 40, 0.12);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+    border-left:   1px solid rgba(180, 120, 10, 0.18);
+    border-right:  1px solid rgba(180, 120, 10, 0.18);
+    box-shadow:
+        0 0 6px rgba(200, 130, 0, 0.07),
+        inset 0 1px 0 rgba(220, 160, 40, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn.amber:hover:not(.active) {
+    color: rgba(255, 200, 100, 0.90);
+    background: #180c00;
+    box-shadow:
+        0 0 10px rgba(200, 130, 0, 0.22),
+        inset 0 1px 0 rgba(220, 160, 40, 0.10);
+}
+
+.tab-btn.amber.active {
+    background: #3a1e00;
+    color: #fff4d8;
+    text-shadow: 0 0 12px rgba(255, 210, 100, 1.0);
+    border-top:    2px solid rgba(255, 200, 80, 0.42);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+    border-left:   1px solid rgba(220, 150, 20, 0.42);
+    border-right:  1px solid rgba(220, 150, 20, 0.42);
+    box-shadow:
+        0 0 28px rgba(210, 140, 0, 0.66),
+        0 0 60px rgba(210, 140, 0, 0.24),
+        0 0 18px rgba(255, 200, 60, 0.28),
+        inset 0 1px 0 rgba(255, 200, 80, 0.24),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Engineering — red LED */
+.tab-btn.engineering,
 .tab-btn.premium {
     background: #1a0000;
-    color: rgba(255, 100, 100, 0.42);
+    color: rgba(255, 115, 115, 0.72);
     border-top:    2px solid rgba(255, 80, 80, 0.12);
     border-bottom: 2px solid rgba(0, 0, 0, 0.45);
     border-left:   1px solid rgba(180, 0, 0, 0.18);
@@ -259,14 +323,16 @@ body::before {
         inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
+.tab-btn.engineering:hover:not(.active),
 .tab-btn.premium:hover:not(.active) {
-    color: rgba(255, 160, 160, 0.65);
+    color: rgba(255, 175, 175, 0.90);
     background: #220000;
     box-shadow:
         0 0 10px rgba(200, 0, 0, 0.20),
         inset 0 1px 0 rgba(255, 80, 80, 0.10);
 }
 
+.tab-btn.engineering.active,
 .tab-btn.premium.active {
     background: #440000;
     color: #ffe8e8;
@@ -280,6 +346,44 @@ body::before {
         0 0 60px rgba(220, 0, 0, 0.24),
         0 0 18px rgba(255, 148, 40, 0.28),
         inset 0 1px 0 rgba(255, 140, 140, 0.24),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Performance — deep purple LED */
+.tab-btn.performance {
+    background: #0d0018;
+    color: rgba(175, 120, 255, 0.72);
+    border-top:    2px solid rgba(140, 80, 255, 0.12);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+    border-left:   1px solid rgba(100, 40, 200, 0.18);
+    border-right:  1px solid rgba(100, 40, 200, 0.18);
+    box-shadow:
+        0 0 6px rgba(120, 60, 220, 0.07),
+        inset 0 1px 0 rgba(160, 100, 255, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn.performance:hover:not(.active) {
+    color: rgba(210, 170, 255, 0.90);
+    background: #130022;
+    box-shadow:
+        0 0 10px rgba(120, 60, 220, 0.22),
+        inset 0 1px 0 rgba(160, 100, 255, 0.10);
+}
+
+.tab-btn.performance.active {
+    background: #2a0055;
+    color: #f0e8ff;
+    text-shadow: 0 0 12px rgba(200, 160, 255, 1.0);
+    border-top:    2px solid rgba(200, 150, 255, 0.42);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+    border-left:   1px solid rgba(140, 80, 255, 0.42);
+    border-right:  1px solid rgba(140, 80, 255, 0.42);
+    box-shadow:
+        0 0 28px rgba(130, 60, 240, 0.66),
+        0 0 60px rgba(130, 60, 240, 0.24),
+        0 0 18px rgba(180, 100, 255, 0.30),
+        inset 0 1px 0 rgba(200, 150, 255, 0.24),
         inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 

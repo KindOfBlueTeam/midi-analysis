@@ -24,7 +24,7 @@
 
             <nav class="sidebar-nav">
 
-                <div class="nav-group">
+                <div class="nav-group nav-group-analysis">
                     <div class="nav-group-label">Analysis</div>
                     <button class="tab-btn active" data-tab="audio">
                         <span class="nav-label">Audio</span>
@@ -40,29 +40,33 @@
                     </button>
                 </div>
 
-                <div class="nav-group">
-                    <div class="nav-group-label">Conversions</div>
-                    <button class="tab-btn" data-tab="sheet">
+                <div class="nav-group nav-group-conversions">
+                    <div class="nav-group-label nav-group-label-conversions">Conversions</div>
+                    <button class="tab-btn amber" data-tab="sheet">
                         <span class="nav-label">MIDI to Sheet</span>
                     </button>
-                    <button class="tab-btn" data-tab="convert">
+                    <button class="tab-btn amber" data-tab="convert">
                         <span class="nav-label">WAV / MP3</span>
                     </button>
                 </div>
 
-                <div class="nav-group nav-group-premium">
-                    <div class="nav-group-label nav-group-label-premium">Studio</div>
-                    <button class="tab-btn premium" data-tab="stems">
+                <div class="nav-group nav-group-engineering">
+                    <div class="nav-group-label nav-group-label-engineering">Engineering</div>
+                    <button class="tab-btn engineering" data-tab="stems">
                         <span class="nav-label">Stem Splitter</span>
                     </button>
-                    <button class="tab-btn premium" data-tab="master">
+                    <button class="tab-btn engineering" data-tab="master">
                         <span class="nav-label">Re-Mastering</span>
                     </button>
-                    <button class="tab-btn premium" data-tab="synth">
+                </div>
+
+                <div class="nav-group nav-group-performance">
+                    <div class="nav-group-label nav-group-label-performance">Performance</div>
+                    <button class="tab-btn performance" data-tab="synth">
                         <span class="nav-label">Atmo Synth</span>
                     </button>
-                    <button class="tab-btn premium" data-tab="drum">
-                        <span class="nav-label">TR-808</span>
+                    <button class="tab-btn performance" data-tab="drum">
+                        <span class="nav-label">Drum Machine</span>
                     </button>
                 </div>
 
@@ -865,7 +869,7 @@
                 </div>
 
                 <div class="tool-intro">
-                    <h2 class="tool-intro-heading">TR-808 Drum Machine <span class="premium-badge">Premium</span></h2>
+                    <h2 class="tool-intro-heading">Drum Machine <span class="premium-badge">Premium</span></h2>
                     <div class="tool-intro-body">
                         <p>A faithful emulation of the Roland TR-808, the drum machine that defined hip-hop, techno, and electronic music. Every sound — kick, snare, hi-hats, toms, cowbell, clap, and cymbal — is synthesized live in your browser using the Web Audio API, no samples required.</p>
                         <p>Load a preset pattern or build your own by clicking the 16 steps in each row. <strong>Shift+click</strong> an active step to add an accent for a louder hit. Dial in BPM and swing, then export your loop as a MIDI file to drop straight into your DAW.</p>

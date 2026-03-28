@@ -80,19 +80,23 @@ def _run_stems(job: dict, audio_path: str, stem_names: list) -> None:
     """Background thread: runs Demucs stem separation."""
     try:
         import torch
+        import torchaudio
         from demucs.pretrained import get_model
         from demucs.apply import apply_model
-        from demucs.audio import AudioFile, save_audio
+        from demucs.audio import save_audio
 
         model = get_model('htdemucs')
         model.eval()
 
-        # Load audio
-        wav = AudioFile(audio_path).read(
-            streams=0,
-            samplerate=model.samplerate,
-            channels=model.audio_channels,
-        )
+        # Load audio with soundfile/torchaudio — avoids ffprobe dependency
+        wav, sr = torchaudio.load(audio_path, backend='soundfile')
+        if wav.shape[0] > model.audio_channels:
+            wav = wav[:model.audio_channels]
+        elif wav.shape[0] < model.audio_channels:
+            wav = wav.repeat(model.audio_channels // wav.shape[0] + 1, 1)[:model.audio_channels]
+        if sr != model.samplerate:
+            wav = torchaudio.functional.resample(wav, sr, model.samplerate)
+
         ref = wav.mean(0)
         wav = (wav - ref.mean()) / ref.std()
         wav = wav.unsqueeze(0)  # add batch dim

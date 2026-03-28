@@ -148,47 +148,56 @@ body::before {
     margin-bottom: 0.1rem;
 }
 
-/* Tab buttons restyled as sidebar nav items */
+/* Tab buttons — studio console LED, blue */
 .tab-btn {
     display: flex;
     align-items: center;
     gap: 0.65rem;
     width: 100%;
     padding: 0.6rem 0.75rem;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    color: var(--text-3);
+    background: #040d1c;
+    border-top:    2px solid rgba(80, 140, 255, 0.10);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+    border-left:   1px solid rgba(40, 80, 200, 0.15);
+    border-right:  1px solid rgba(40, 80, 200, 0.15);
+    border-radius: 3px;
+    color: rgba(120, 170, 255, 0.35);
     font-family: inherit;
     font-size: 0.78rem;
-    font-weight: 400;
+    font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: color 0.2s, background 0.2s, border-color 0.2s;
+    transition: all 0.25s ease;
     text-align: left;
+    text-shadow: none;
+    box-shadow:
+        0 0 4px rgba(0, 100, 255, 0.06),
+        inset 0 1px 0 rgba(80, 140, 255, 0.06),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .tab-btn:hover:not(.active) {
-    color: var(--text-2);
-    background: rgba(200, 150, 12, 0.05);
-    border-color: var(--border);
+    color: rgba(160, 200, 255, 0.65);
+    background: #060f22;
+    box-shadow:
+        0 0 10px rgba(0, 100, 255, 0.18),
+        inset 0 1px 0 rgba(80, 140, 255, 0.10);
 }
 
 .tab-btn.active {
-    color: var(--gold-soft);
-    background: rgba(200, 150, 12, 0.08);
-    border-color: var(--card-border);
-    position: relative;
-}
-
-.tab-btn.active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 20%; bottom: 20%;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--blue), var(--gold));
-    border-radius: 0 2px 2px 0;
+    background: #001344;
+    color: #cce0ff;
+    text-shadow: 0 0 10px rgba(100, 180, 255, 0.9);
+    border-top:    2px solid rgba(120, 180, 255, 0.35);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+    border-left:   1px solid rgba(60, 120, 255, 0.35);
+    border-right:  1px solid rgba(60, 120, 255, 0.35);
+    box-shadow:
+        0 0 22px rgba(0, 120, 255, 0.55),
+        0 0 50px rgba(0, 120, 255, 0.20),
+        inset 0 1px 0 rgba(120, 180, 255, 0.20),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
 .nav-icon {

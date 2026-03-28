@@ -395,6 +395,37 @@ body::before {
 
 .nav-label { flex: 1; }
 
+/* Contact button */
+.sidebar-contact {
+    padding: 0.5rem 0.65rem;
+}
+
+.contact-btn {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: rgba(200, 150, 12, 0.06);
+    border: 1px solid rgba(200, 150, 12, 0.22);
+    border-radius: 3px;
+    color: rgba(220, 175, 60, 0.72);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.contact-btn:hover {
+    background: rgba(200, 150, 12, 0.14);
+    border-color: rgba(220, 175, 60, 0.50);
+    color: var(--gold-soft);
+    box-shadow: 0 0 12px rgba(200, 150, 12, 0.22);
+}
+
 /* Sidebar footer */
 .sidebar-footer {
     padding: 1rem 1.25rem;

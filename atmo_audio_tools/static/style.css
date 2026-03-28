@@ -200,6 +200,43 @@ body::before {
         inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
+/* Premium tab buttons — red LED, same structure as blue but red */
+.tab-btn.premium {
+    background: #1a0000;
+    color: rgba(255, 100, 100, 0.35);
+    border-top:    2px solid rgba(255, 80, 80, 0.10);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+    border-left:   1px solid rgba(180, 0, 0, 0.15);
+    border-right:  1px solid rgba(180, 0, 0, 0.15);
+    box-shadow:
+        0 0 4px rgba(200, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 80, 80, 0.06),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn.premium:hover:not(.active) {
+    color: rgba(255, 160, 160, 0.65);
+    background: #220000;
+    box-shadow:
+        0 0 10px rgba(200, 0, 0, 0.20),
+        inset 0 1px 0 rgba(255, 80, 80, 0.10);
+}
+
+.tab-btn.premium.active {
+    background: #440000;
+    color: #ffe8e8;
+    text-shadow: 0 0 12px rgba(255, 140, 140, 1.0);
+    border-top:    2px solid rgba(255, 140, 140, 0.42);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+    border-left:   1px solid rgba(220, 60, 60, 0.42);
+    border-right:  1px solid rgba(220, 60, 60, 0.42);
+    box-shadow:
+        0 0 28px rgba(220, 0, 0, 0.66),
+        0 0 60px rgba(220, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 140, 140, 0.24),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
 .nav-icon {
     font-size: 1rem;
     flex-shrink: 0;
@@ -1284,6 +1321,68 @@ body::before {
     display: block;
     width: 100%;
     height: auto;
+}
+
+/* ── Stems tab ───────────────────────────────────────────────────────────── */
+
+.premium-badge {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffdddd;
+    background: #550000;
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+    vertical-align: middle;
+    margin-left: 0.6rem;
+    text-shadow: 0 0 8px rgba(255, 80, 80, 0.7);
+    box-shadow: 0 0 10px rgba(200, 0, 0, 0.35);
+    position: relative;
+    top: -2px;
+}
+
+.stems-warning {
+    margin-top: 1rem;
+    padding: 0.65rem 1rem;
+    border-left: 2px solid rgba(255, 180, 0, 0.5);
+    background: rgba(255, 160, 0, 0.06);
+    font-size: 0.82rem;
+    color: var(--gold-soft);
+    border-radius: 0 3px 3px 0;
+}
+
+.stems-result {
+    margin-top: 2rem;
+}
+
+.stems-done-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-1);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.06em;
+}
+
+.stems-done-sub {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.04em;
+}
+
+.stems-download-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    max-width: 560px;
+}
+
+.stems-dl-btn {
+    width: 100%;
+    text-align: center;
 }
 
 /* Wide ripple below the three columns */

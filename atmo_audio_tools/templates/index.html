@@ -51,6 +51,11 @@
                     <span class="nav-icon">🎼</span>
                     <span class="nav-label">MIDI to Sheet</span>
                 </button>
+
+                <button class="tab-btn premium" data-tab="stems">
+                    <span class="nav-icon">✂️</span>
+                    <span class="nav-label">Stem Splitter</span>
+                </button>
             </nav>
 
             <footer class="sidebar-footer">
@@ -621,6 +626,48 @@
                 </div>
 
             </div><!-- /sheetTab -->
+
+            <!-- ══════════════════════════ STEMS TAB ═══════════════════════════ -->
+            <div id="stemsTab" class="tab-content" style="display:none;">
+
+                <div class="tool-intro">
+                    <h2 class="tool-intro-heading">Stem Splitter <span class="premium-badge">Premium</span></h2>
+                    <div class="tool-intro-body">
+                        <p>A finished mix contains every instrument layered together into a single audio file. Sometimes you need to work with the individual parts — isolate the vocals to create an a cappella, extract the drums for a remix, or pull the bass out of a track you don't have the original session for.</p>
+                        <p>This tool uses a state-of-the-art AI model to separate your audio into four stems: <strong>vocals</strong>, <strong>drums</strong>, <strong>bass</strong>, and <strong>other instruments</strong>. Each stem downloads as a separate WAV file at full quality.</p>
+                        <p class="tool-intro-analogy">Think of it like unscrambling an egg — the technology isn't perfect, but it's genuinely impressive how much of the original signal it recovers cleanly.</p>
+                    </div>
+                    <div class="stems-warning">⏱ Processing takes 5–15 minutes depending on file length. This is normal — stem separation is computationally intensive.</div>
+                </div>
+
+                <section class="upload-section">
+                    <div class="upload-box" id="stemsUploadBox">
+                        <div class="upload-icon">✂️</div>
+                        <h2>Upload Audio File</h2>
+                        <p>WAV · AIFF · FLAC · MP3</p>
+                        <input type="file" id="stemsInput" accept=".wav,.aif,.aiff,.flac,.mp3" hidden>
+                        <button id="stemsBrowseBtn" class="btn btn-primary">Choose File</button>
+                    </div>
+                    <div id="stemsFileName" class="file-name" style="display:none;"></div>
+                    <button id="stemsSplitBtn" class="btn btn-master-cta" style="display:none; margin-top:1.2rem;">Split Stems</button>
+                </section>
+
+                <div id="stemsResult" style="display:none;" class="stems-result">
+                    <div class="stems-done-title">✅ Stems Ready</div>
+                    <p id="stemsResultMsg" class="stems-done-sub"></p>
+                    <div class="stems-download-grid" id="stemsDownloadGrid"></div>
+                    <button id="stemsResetBtn" class="btn btn-secondary" style="margin-top:1.2rem;">Split Another</button>
+                </div>
+
+                <div id="stemsErrorSection" style="display:none;" class="error-section">
+                    <div class="error-box">
+                        <h3>&#10008; Error</h3>
+                        <p id="stemsErrorMessage"></p>
+                        <button id="stemsRetryBtn" class="btn btn-primary">Try Again</button>
+                    </div>
+                </div>
+
+            </div><!-- /stemsTab -->
 
         </main>
 

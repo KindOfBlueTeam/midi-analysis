@@ -32,6 +32,7 @@ _MASTER_SEMAPHORE = threading.Semaphore(1)
 _MASTER_JOBS: dict = {}
 _LOUDNESS_JOBS: dict = {}
 _SHEET_JOBS:   dict = {}
+_STEMS_JOBS:   dict = {}
 _MASTER_JOB_TTL = 600  # seconds before temp files are cleaned up
 
 _LOUDNESS_PLATFORMS = {
@@ -64,6 +65,64 @@ def _cleanup_sheet_job(job_id: str) -> None:
     job = _SHEET_JOBS.pop(job_id, None)
     if job and job.get('tmpdir'):
         shutil.rmtree(job['tmpdir'], ignore_errors=True)
+
+
+def _cleanup_stems_job(job_id: str) -> None:
+    job = _STEMS_JOBS.pop(job_id, None)
+    if job and job.get('tmpdir'):
+        shutil.rmtree(job['tmpdir'], ignore_errors=True)
+
+
+_STEMS_SEMAPHORE = threading.Semaphore(1)  # one job at a time — CPU intensive
+
+
+def _run_stems(job: dict, audio_path: str, stem_names: list) -> None:
+    """Background thread: runs Demucs stem separation."""
+    try:
+        import torch
+        from demucs.pretrained import get_model
+        from demucs.apply import apply_model
+        from demucs.audio import AudioFile, save_audio
+
+        model = get_model('htdemucs')
+        model.eval()
+
+        # Load audio
+        wav = AudioFile(audio_path).read(
+            streams=0,
+            samplerate=model.samplerate,
+            channels=model.audio_channels,
+        )
+        ref = wav.mean(0)
+        wav = (wav - ref.mean()) / ref.std()
+        wav = wav.unsqueeze(0)  # add batch dim
+
+        job['status'] = 'processing'
+
+        with torch.no_grad():
+            sources = apply_model(model, wav, device='cpu', shifts=1, split=True,
+                                  overlap=0.25, progress=False)[0]
+
+        sources = sources * ref.std() + ref.mean()
+
+        stem_map = {name: i for i, name in enumerate(model.sources)}
+        tmpdir = job['tmpdir']
+
+        for stem in stem_names:
+            idx = stem_map.get(stem)
+            if idx is None:
+                continue
+            out_path = os.path.join(tmpdir, f'{stem}.wav')
+            save_audio(sources[idx], out_path, samplerate=model.samplerate)
+            job['stems'][stem] = out_path
+
+        job['status'] = 'complete'
+
+    except Exception as exc:
+        job['error'] = str(exc)
+        job['status'] = 'error'
+    finally:
+        _STEMS_SEMAPHORE.release()
 
 
 def _run_mastering(job: dict, target_data: bytes, ref_data: bytes,
@@ -714,6 +773,85 @@ def create_app():
             mimetype='audio/wav',
             as_attachment=True,
             download_name=job['download_name'],
+        )
+
+    @app.route('/api/stems', methods=['POST'])
+    def split_stems():
+        """
+        Start a stem separation job using Demucs htdemucs.
+        Returns a job_id immediately; poll /api/stems/status/<job_id>.
+        Download each stem from /api/stems/download/<job_id>/<stem>.
+        """
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['audio']
+        if not file or not file.filename:
+            return jsonify({'error': 'No file selected'}), 400
+
+        safe_name = os.path.basename(file.filename)
+        ext = os.path.splitext(safe_name)[1].lower()
+        if ext not in _AUDIO_EXTENSIONS:
+            return jsonify({'error': f'Unsupported format. Use WAV, AIFF, FLAC, or MP3.'}), 400
+
+        if not _STEMS_SEMAPHORE.acquire(blocking=False):
+            return jsonify({'error': 'A stem separation job is already running — please wait'}), 503
+
+        try:
+            file_data = file.read()
+            if len(file_data) > _AUDIO_MAX_BYTES:
+                _STEMS_SEMAPHORE.release()
+                return jsonify({'error': 'File too large. Maximum size is 100 MB'}), 400
+
+            tmpdir = tempfile.mkdtemp()
+            audio_path = os.path.join(tmpdir, safe_name)
+            with open(audio_path, 'wb') as f:
+                f.write(file_data)
+
+            stem_names = ['vocals', 'drums', 'bass', 'other']
+            job_id = str(uuid.uuid4())
+            job = {
+                'status':  'queued',
+                'error':   None,
+                'tmpdir':  tmpdir,
+                'stem_names': stem_names,
+                'stems':   {},
+                'filename': os.path.splitext(safe_name)[0],
+            }
+            _STEMS_JOBS[job_id] = job
+
+            Thread(target=_run_stems, args=(job, audio_path, stem_names), daemon=True).start()
+            Timer(_MASTER_JOB_TTL, _cleanup_stems_job, args=[job_id]).start()
+
+            return jsonify({'job_id': job_id, 'stem_names': stem_names}), 202
+
+        except Exception as exc:
+            _STEMS_SEMAPHORE.release()
+            return jsonify({'error': str(exc)}), 400
+
+    @app.route('/api/stems/status/<job_id>')
+    def stems_status(job_id):
+        job = _STEMS_JOBS.get(job_id)
+        if not job:
+            return jsonify({'error': 'Job not found or expired'}), 404
+        resp = {'status': job['status'], 'stems_ready': list(job['stems'].keys())}
+        if job['status'] == 'error':
+            resp['error'] = job['error']
+        if job['status'] == 'complete':
+            resp['filename'] = job['filename']
+            resp['stem_names'] = job['stem_names']
+        return jsonify(resp)
+
+    @app.route('/api/stems/download/<job_id>/<stem>')
+    def stems_download(job_id, stem):
+        job = _STEMS_JOBS.get(job_id)
+        if not job or stem not in job['stems']:
+            return jsonify({'error': 'Stem not found'}), 404
+        return send_file(
+            job['stems'][stem],
+            mimetype='audio/wav',
+            as_attachment=True,
+            download_name=f"{job['filename']}-{stem}.wav",
         )
 
     @app.route('/api/sheet', methods=['POST'])

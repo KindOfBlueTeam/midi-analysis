@@ -8,6 +8,7 @@ class MIDIAnalysisApp {
         this.masterReferenceFile = null;
         this.loudnessFile        = null;
         this.sheetFile           = null;
+        this.stemsFile           = null;
         this.analysisResult = null;
         this.activeTab = 'audio';
 
@@ -98,6 +99,19 @@ class MIDIAnalysisApp {
             sheetErrorSection: document.getElementById('sheetErrorSection'),
             sheetErrorMessage: document.getElementById('sheetErrorMessage'),
             sheetRetryBtn:     document.getElementById('sheetRetryBtn'),
+            // Stems tab
+            stemsUploadBox:    document.getElementById('stemsUploadBox'),
+            stemsInput:        document.getElementById('stemsInput'),
+            stemsBrowseBtn:    document.getElementById('stemsBrowseBtn'),
+            stemsFileName:     document.getElementById('stemsFileName'),
+            stemsSplitBtn:     document.getElementById('stemsSplitBtn'),
+            stemsResult:       document.getElementById('stemsResult'),
+            stemsResultMsg:    document.getElementById('stemsResultMsg'),
+            stemsDownloadGrid: document.getElementById('stemsDownloadGrid'),
+            stemsResetBtn:     document.getElementById('stemsResetBtn'),
+            stemsErrorSection: document.getElementById('stemsErrorSection'),
+            stemsErrorMessage: document.getElementById('stemsErrorMessage'),
+            stemsRetryBtn:     document.getElementById('stemsRetryBtn'),
         };
     }
 
@@ -345,6 +359,24 @@ class MIDIAnalysisApp {
         this.elements.sheetConvertBtn.addEventListener('click', () => this.submitSheet());
         this.elements.sheetResetBtn.addEventListener('click', () => this.resetSheet());
         this.elements.sheetRetryBtn.addEventListener('click', () => this.resetSheet());
+
+        // Stems tab
+        this.elements.stemsBrowseBtn.addEventListener('click', () => this.elements.stemsInput.click());
+        this.elements.stemsInput.addEventListener('change', (e) => this.handleStemsFileSelect(e.target.files[0]));
+        this.elements.stemsUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault(); this.elements.stemsUploadBox.classList.add('dragover');
+        });
+        this.elements.stemsUploadBox.addEventListener('dragleave', () => {
+            this.elements.stemsUploadBox.classList.remove('dragover');
+        });
+        this.elements.stemsUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.stemsUploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) this.handleStemsFileSelect(e.dataTransfer.files[0]);
+        });
+        this.elements.stemsSplitBtn.addEventListener('click', () => this.submitStems());
+        this.elements.stemsResetBtn.addEventListener('click', () => this.resetStems());
+        this.elements.stemsRetryBtn.addEventListener('click', () => this.resetStems());
     }
 
     handleFileSelect(file) {
@@ -914,6 +946,7 @@ class MIDIAnalysisApp {
         document.getElementById('masterTab').style.display   = tab === 'master'   ? '' : 'none';
         document.getElementById('loudnessTab').style.display = tab === 'loudness' ? '' : 'none';
         document.getElementById('sheetTab').style.display    = tab === 'sheet'    ? '' : 'none';
+        document.getElementById('stemsTab').style.display    = tab === 'stems'    ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────
@@ -1254,6 +1287,120 @@ class MIDIAnalysisApp {
 
     hideSheetError() {
         this.elements.sheetErrorSection.style.display = 'none';
+    }
+
+    // ── Stems tab ─────────────────────────────────────────────────────────────
+
+    handleStemsFileSelect(file) {
+        if (!file) return;
+        if (!/\.(wav|aif|aiff|flac|mp3)$/i.test(file.name)) {
+            this.showStemsError('Please select a WAV, AIFF, FLAC, or MP3 file.');
+            return;
+        }
+        this.stemsFile = file;
+        this.elements.stemsFileName.textContent   = file.name;
+        this.elements.stemsFileName.style.display = 'block';
+        this.elements.stemsSplitBtn.style.display = 'inline-block';
+        this.elements.stemsResult.style.display   = 'none';
+        this.hideStemsError();
+    }
+
+    async submitStems() {
+        if (!this.stemsFile) return;
+
+        const formData = new FormData();
+        formData.append('audio', this.stemsFile);
+
+        this.showGlobalLoading('Starting stem separation — this will take several minutes…');
+        this.elements.masterLogStream.style.display = 'block';
+        this.elements.masterLogStream.innerHTML = '<div>Initialising Demucs model…</div>';
+        this.elements.stemsSplitBtn.disabled = true;
+        this.hideStemsError();
+
+        let jobId, pollInterval;
+
+        try {
+            const resp = await fetch('/api/stems', { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Failed to start job');
+            jobId = data.job_id;
+        } catch (err) {
+            this.hideGlobalLoading();
+            this.elements.masterLogStream.style.display = 'none';
+            this.elements.stemsSplitBtn.disabled = false;
+            this.showStemsError(err.message);
+            return;
+        }
+
+        const statusMessages = {
+            queued: 'Job queued — waiting for processor…',
+            processing: 'Separating stems — please wait…',
+        };
+
+        pollInterval = setInterval(async () => {
+            try {
+                const r = await fetch(`/api/stems/status/${jobId}`);
+                const d = await r.json();
+
+                const msg = statusMessages[d.status] || 'Processing…';
+                this.elements.globalLoadingText.textContent = msg;
+
+                if (d.stems_ready && d.stems_ready.length) {
+                    this.elements.masterLogStream.innerHTML =
+                        d.stems_ready.map(s => `<div>✓ ${s} ready</div>`).join('');
+                }
+
+                if (d.status === 'complete') {
+                    clearInterval(pollInterval);
+                    this._finishStems(jobId, d);
+                } else if (d.status === 'error') {
+                    clearInterval(pollInterval);
+                    this.hideGlobalLoading();
+                    this.elements.masterLogStream.style.display = 'none';
+                    this.elements.stemsSplitBtn.disabled = false;
+                    this.showStemsError(d.error || 'Stem separation failed');
+                }
+            } catch (_) {}
+        }, 3000);
+    }
+
+    _finishStems(jobId, data) {
+        const stemLabels = { vocals: '🎤 Vocals', drums: '🥁 Drums', bass: '🎸 Bass', other: '🎹 Other' };
+        this.elements.stemsDownloadGrid.innerHTML = '';
+
+        data.stem_names.forEach(stem => {
+            const a = document.createElement('a');
+            a.href     = `/api/stems/download/${jobId}/${stem}`;
+            a.download = `${data.filename}-${stem}.wav`;
+            a.className = 'btn btn-master-cta stems-dl-btn';
+            a.textContent = `Download ${stemLabels[stem] || stem}`;
+            this.elements.stemsDownloadGrid.appendChild(a);
+        });
+
+        this.elements.stemsResultMsg.textContent = data.filename;
+        this.elements.stemsResult.style.display  = 'block';
+        this.hideGlobalLoading();
+        this.elements.masterLogStream.style.display = 'none';
+        this.elements.stemsSplitBtn.disabled = false;
+    }
+
+    resetStems() {
+        this.stemsFile = null;
+        this.elements.stemsInput.value              = '';
+        this.elements.stemsFileName.style.display   = 'none';
+        this.elements.stemsSplitBtn.style.display   = 'none';
+        this.elements.stemsResult.style.display     = 'none';
+        this.elements.stemsDownloadGrid.innerHTML   = '';
+        this.hideStemsError();
+    }
+
+    showStemsError(msg) {
+        this.elements.stemsErrorMessage.textContent   = msg;
+        this.elements.stemsErrorSection.style.display = 'block';
+    }
+
+    hideStemsError() {
+        this.elements.stemsErrorSection.style.display = 'none';
     }
 
     // ── Audio results display ─────────────────────────────────────────────────

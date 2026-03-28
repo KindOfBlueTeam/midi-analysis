@@ -30,6 +30,7 @@ _MASTER_SEMAPHORE = threading.Semaphore(1)
 # In-memory job store: job_id → job dict
 _MASTER_JOBS: dict = {}
 _LOUDNESS_JOBS: dict = {}
+_SHEET_JOBS:   dict = {}
 _MASTER_JOB_TTL = 600  # seconds before temp files are cleaned up
 
 _LOUDNESS_PLATFORMS = {
@@ -54,6 +55,12 @@ def _cleanup_master_job(job_id: str) -> None:
 
 def _cleanup_loudness_job(job_id: str) -> None:
     job = _LOUDNESS_JOBS.pop(job_id, None)
+    if job and job.get('tmpdir'):
+        shutil.rmtree(job['tmpdir'], ignore_errors=True)
+
+
+def _cleanup_sheet_job(job_id: str) -> None:
+    job = _SHEET_JOBS.pop(job_id, None)
     if job and job.get('tmpdir'):
         shutil.rmtree(job['tmpdir'], ignore_errors=True)
 
@@ -706,6 +713,92 @@ def create_app():
             mimetype='audio/wav',
             as_attachment=True,
             download_name=job['download_name'],
+        )
+
+    @app.route('/api/sheet', methods=['POST'])
+    def midi_to_sheet():
+        """
+        Convert an uploaded MIDI file to sheet music.
+
+        Returns JSON with rendered SVG pages and a job_id for MusicXML download.
+        """
+        if 'midi_file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['midi_file']
+        if not file or not file.filename:
+            return jsonify({'error': 'No file selected'}), 400
+
+        safe_name = os.path.basename(file.filename)
+        if not safe_name.lower().endswith(('.mid', '.midi')):
+            return jsonify({'error': 'File must be a MIDI file (.mid or .midi)'}), 400
+
+        try:
+            from music21 import converter as m21converter
+            import verovio
+
+            file_data = _sanitize_midi_bytes(file.read())
+            stem = os.path.splitext(safe_name)[0]
+
+            # Write MIDI to temp file (music21 converter is most reliable via path)
+            tmpdir = tempfile.mkdtemp()
+            midi_tmp = os.path.join(tmpdir, safe_name)
+            with open(midi_tmp, 'wb') as f:
+                f.write(file_data)
+
+            score = m21converter.parse(midi_tmp)
+            score.makeNotation(inPlace=True)
+
+            # Title from metadata or filename
+            title = stem
+            if score.metadata and score.metadata.title:
+                title = score.metadata.title
+
+            # Export MusicXML
+            xml_path = os.path.join(tmpdir, f'{stem}.musicxml')
+            score.write('musicxml', fp=xml_path)
+            with open(xml_path, 'r', encoding='utf-8') as f:
+                xml_string = f.read()
+
+            # Render all pages to SVG
+            tk = verovio.toolkit()
+            tk.setOptions({
+                'pageWidth':        2100,
+                'adjustPageHeight': True,
+                'scale':            45,
+                'footer':           'none',
+                'header':           'none',
+            })
+            tk.loadData(xml_string)
+            page_count = tk.getPageCount()
+            svgs = [tk.renderToSVG(p) for p in range(1, page_count + 1)]
+
+            job_id = str(uuid.uuid4())
+            _SHEET_JOBS[job_id] = {'tmpdir': tmpdir, 'stem': stem, 'xml_path': xml_path}
+            Timer(_MASTER_JOB_TTL, _cleanup_sheet_job, args=[job_id]).start()
+
+            return jsonify({
+                'job_id':     job_id,
+                'title':      title,
+                'page_count': page_count,
+                'svgs':       svgs,
+            }), 200
+
+        except Exception as exc:
+            app.logger.error("MIDI to sheet failed: %s", exc, exc_info=True)
+            return jsonify({'error': f'Conversion failed: {exc}'}), 400
+
+    @app.route('/api/sheet/download/<job_id>')
+    def sheet_download(job_id):
+        """Download the MusicXML file for the converted score."""
+        job = _SHEET_JOBS.get(job_id)
+        if not job:
+            return jsonify({'error': 'Job not found or expired'}), 404
+        return send_file(
+            job['xml_path'],
+            mimetype='application/vnd.recordare.musicxml+xml',
+            as_attachment=True,
+            download_name=f"{job['stem']}.musicxml",
         )
 
     @app.errorhandler(413)

@@ -46,6 +46,11 @@
                     <span class="nav-icon">📢</span>
                     <span class="nav-label">Loudness</span>
                 </button>
+
+                <button class="tab-btn" data-tab="sheet">
+                    <span class="nav-icon">🎼</span>
+                    <span class="nav-label">MIDI to Sheet</span>
+                </button>
             </nav>
 
             <footer class="sidebar-footer">
@@ -567,6 +572,52 @@
                 </div>
 
             </div><!-- /loudnessTab -->
+
+            <!-- ══════════════════════════ SHEET TAB ═══════════════════════════ -->
+            <div id="sheetTab" class="tab-content" style="display:none;">
+
+                <div class="tool-intro">
+                    <h2 class="tool-intro-heading">MIDI to Sheet Music</h2>
+                    <div class="tool-intro-body">
+                        <p>MIDI files contain the raw performance data for a piece of music — every note, its timing, and how hard it was played — but none of that is human-readable without software to interpret it.</p>
+                        <p>This tool converts your MIDI file into standard musical notation, displayed as sheet music you can read, share, or import into notation software like MuseScore or Sibelius. The result renders directly in your browser and downloads as MusicXML, the format accepted by virtually every professional notation application.</p>
+                        <p class="tool-intro-analogy">Think of it like translating a player piano roll into written notation — the same music, made legible to anyone who can read a score.</p>
+                    </div>
+                </div>
+
+                <section class="upload-section">
+                    <div class="upload-box" id="sheetUploadBox">
+                        <div class="upload-icon">🎼</div>
+                        <h2>Upload MIDI File</h2>
+                        <p>.mid · .midi</p>
+                        <input type="file" id="sheetInput" accept=".mid,.midi" hidden>
+                        <button id="sheetBrowseBtn" class="btn btn-primary">Choose File</button>
+                    </div>
+                    <div id="sheetFileName" class="file-name" style="display:none;"></div>
+                    <button id="sheetConvertBtn" class="btn btn-cta" style="display:none; margin-top:1.2rem;">Convert to Sheet Music</button>
+                </section>
+
+                <div id="sheetResult" style="display:none;">
+                    <div class="sheet-result-toolbar">
+                        <div id="sheetTitle" class="sheet-title"></div>
+                        <div class="sheet-toolbar-actions">
+                            <span id="sheetPageInfo" class="sheet-page-info"></span>
+                            <a id="sheetDownloadLink" class="btn btn-master-cta" download>Download MusicXML</a>
+                            <button id="sheetResetBtn" class="btn btn-secondary">Convert Another</button>
+                        </div>
+                    </div>
+                    <div id="sheetPages" class="sheet-pages"></div>
+                </div>
+
+                <div id="sheetErrorSection" style="display:none;" class="error-section">
+                    <div class="error-box">
+                        <h3>&#10008; Error</h3>
+                        <p id="sheetErrorMessage"></p>
+                        <button id="sheetRetryBtn" class="btn btn-primary">Try Again</button>
+                    </div>
+                </div>
+
+            </div><!-- /sheetTab -->
 
         </main>
 

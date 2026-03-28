@@ -7,6 +7,7 @@ class MIDIAnalysisApp {
         this.masterTargetFile    = null;
         this.masterReferenceFile = null;
         this.loudnessFile        = null;
+        this.sheetFile           = null;
         this.analysisResult = null;
         this.activeTab = 'audio';
 
@@ -82,6 +83,21 @@ class MIDIAnalysisApp {
             loudnessErrorMessage:    document.getElementById('loudnessErrorMessage'),
             loudnessRetryBtn:        document.getElementById('loudnessRetryBtn'),
             loudnessClampedMsg:      document.getElementById('loudnessClampedMsg'),
+            // Sheet tab
+            sheetUploadBox:    document.getElementById('sheetUploadBox'),
+            sheetInput:        document.getElementById('sheetInput'),
+            sheetBrowseBtn:    document.getElementById('sheetBrowseBtn'),
+            sheetFileName:     document.getElementById('sheetFileName'),
+            sheetConvertBtn:   document.getElementById('sheetConvertBtn'),
+            sheetResult:       document.getElementById('sheetResult'),
+            sheetTitle:        document.getElementById('sheetTitle'),
+            sheetPageInfo:     document.getElementById('sheetPageInfo'),
+            sheetPages:        document.getElementById('sheetPages'),
+            sheetDownloadLink: document.getElementById('sheetDownloadLink'),
+            sheetResetBtn:     document.getElementById('sheetResetBtn'),
+            sheetErrorSection: document.getElementById('sheetErrorSection'),
+            sheetErrorMessage: document.getElementById('sheetErrorMessage'),
+            sheetRetryBtn:     document.getElementById('sheetRetryBtn'),
         };
     }
 
@@ -311,6 +327,24 @@ class MIDIAnalysisApp {
         this.elements.loudnessNormalizeBtn.addEventListener('click', () => this.submitLoudness());
         this.elements.loudnessResetBtn.addEventListener('click', () => this.resetLoudness());
         this.elements.loudnessRetryBtn.addEventListener('click', () => this.resetLoudness());
+
+        // Sheet tab
+        this.elements.sheetBrowseBtn.addEventListener('click', () => this.elements.sheetInput.click());
+        this.elements.sheetInput.addEventListener('change', (e) => this.handleSheetFileSelect(e.target.files[0]));
+        this.elements.sheetUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault(); this.elements.sheetUploadBox.classList.add('dragover');
+        });
+        this.elements.sheetUploadBox.addEventListener('dragleave', () => {
+            this.elements.sheetUploadBox.classList.remove('dragover');
+        });
+        this.elements.sheetUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.sheetUploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) this.handleSheetFileSelect(e.dataTransfer.files[0]);
+        });
+        this.elements.sheetConvertBtn.addEventListener('click', () => this.submitSheet());
+        this.elements.sheetResetBtn.addEventListener('click', () => this.resetSheet());
+        this.elements.sheetRetryBtn.addEventListener('click', () => this.resetSheet());
     }
 
     handleFileSelect(file) {
@@ -879,6 +913,7 @@ class MIDIAnalysisApp {
         document.getElementById('audioTab').style.display    = tab === 'audio'    ? '' : 'none';
         document.getElementById('masterTab').style.display   = tab === 'master'   ? '' : 'none';
         document.getElementById('loudnessTab').style.display = tab === 'loudness' ? '' : 'none';
+        document.getElementById('sheetTab').style.display    = tab === 'sheet'    ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────
@@ -1142,6 +1177,83 @@ class MIDIAnalysisApp {
 
     hideLoudnessError() {
         this.elements.loudnessErrorSection.style.display = 'none';
+    }
+
+    // ── Sheet tab ─────────────────────────────────────────────────────────────
+
+    handleSheetFileSelect(file) {
+        if (!file) return;
+        if (!/\.(mid|midi)$/i.test(file.name)) {
+            this.showSheetError('Please select a MIDI file (.mid or .midi).');
+            return;
+        }
+        this.sheetFile = file;
+        this.elements.sheetFileName.textContent   = file.name;
+        this.elements.sheetFileName.style.display = 'block';
+        this.elements.sheetConvertBtn.style.display = 'inline-block';
+        this.elements.sheetResult.style.display   = 'none';
+        this.hideSheetError();
+    }
+
+    async submitSheet() {
+        if (!this.sheetFile) return;
+
+        const formData = new FormData();
+        formData.append('midi_file', this.sheetFile);
+
+        this.showGlobalLoading('Converting MIDI to sheet music…');
+        this.elements.sheetConvertBtn.disabled = true;
+        this.hideSheetError();
+
+        try {
+            const resp = await fetch('/api/sheet', { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Conversion failed');
+
+            this.elements.sheetTitle.textContent    = data.title;
+            this.elements.sheetPageInfo.textContent = data.page_count === 1
+                ? '1 page'
+                : `${data.page_count} pages`;
+
+            this.elements.sheetPages.innerHTML = '';
+            data.svgs.forEach((svg, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'sheet-page';
+                wrap.setAttribute('data-page', i + 1);
+                wrap.innerHTML = svg;
+                const svgEl = wrap.querySelector('svg');
+                if (svgEl) { svgEl.style.width = '100%'; svgEl.style.height = 'auto'; }
+                this.elements.sheetPages.appendChild(wrap);
+            });
+
+            this.elements.sheetDownloadLink.href     = `/api/sheet/download/${data.job_id}`;
+            this.elements.sheetDownloadLink.download = `${data.title}.musicxml`;
+            this.elements.sheetResult.style.display  = 'block';
+        } catch (err) {
+            this.showSheetError(err.message);
+        } finally {
+            this.hideGlobalLoading();
+            this.elements.sheetConvertBtn.disabled = false;
+        }
+    }
+
+    resetSheet() {
+        this.sheetFile = null;
+        this.elements.sheetInput.value              = '';
+        this.elements.sheetFileName.style.display   = 'none';
+        this.elements.sheetConvertBtn.style.display = 'none';
+        this.elements.sheetResult.style.display     = 'none';
+        this.elements.sheetPages.innerHTML          = '';
+        this.hideSheetError();
+    }
+
+    showSheetError(msg) {
+        this.elements.sheetErrorMessage.textContent   = msg;
+        this.elements.sheetErrorSection.style.display = 'block';
+    }
+
+    hideSheetError() {
+        this.elements.sheetErrorSection.style.display = 'none';
     }
 
     // ── Audio results display ─────────────────────────────────────────────────

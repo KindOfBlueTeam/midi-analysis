@@ -875,9 +875,10 @@ class MIDIAnalysisApp {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tab);
         });
-        document.getElementById('midiTab').style.display    = tab === 'midi'   ? '' : 'none';
-        document.getElementById('audioTab').style.display   = tab === 'audio'  ? '' : 'none';
-        document.getElementById('masterTab').style.display  = tab === 'master' ? '' : 'none';
+        document.getElementById('midiTab').style.display     = tab === 'midi'     ? '' : 'none';
+        document.getElementById('audioTab').style.display    = tab === 'audio'    ? '' : 'none';
+        document.getElementById('masterTab').style.display   = tab === 'master'   ? '' : 'none';
+        document.getElementById('loudnessTab').style.display = tab === 'loudness' ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────

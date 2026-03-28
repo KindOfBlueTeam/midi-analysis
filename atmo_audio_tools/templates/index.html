@@ -29,15 +29,12 @@
                 <div class="nav-group">
                     <div class="nav-group-label">Analysis</div>
                     <button class="tab-btn active" data-tab="audio">
-                        <span class="nav-icon">🎵</span>
                         <span class="nav-label">Audio</span>
                     </button>
                     <button class="tab-btn" data-tab="loudness">
-                        <span class="nav-icon">📢</span>
                         <span class="nav-label">Loudness</span>
                     </button>
                     <button class="tab-btn" data-tab="midi">
-                        <span class="nav-icon">📁</span>
                         <span class="nav-label">MIDI</span>
                     </button>
                 </div>
@@ -45,24 +42,20 @@
                 <div class="nav-group">
                     <div class="nav-group-label">Conversions</div>
                     <button class="tab-btn" data-tab="sheet">
-                        <span class="nav-icon">🎼</span>
                         <span class="nav-label">MIDI to Sheet</span>
                     </button>
                     <button class="tab-btn" disabled>
-                        <span class="nav-icon">🔄</span>
                         <span class="nav-label">WAV / MP3</span>
                         <span class="nav-coming-soon">Soon</span>
                     </button>
                 </div>
 
                 <div class="nav-group nav-group-premium">
-                    <div class="nav-group-label nav-group-label-premium">Studio ★</div>
+                    <div class="nav-group-label nav-group-label-premium">Studio</div>
                     <button class="tab-btn premium" data-tab="stems">
-                        <span class="nav-icon">✂️</span>
                         <span class="nav-label">Stem Splitter</span>
                     </button>
                     <button class="tab-btn premium" data-tab="master">
-                        <span class="nav-icon">🎚️</span>
                         <span class="nav-label">Mastering</span>
                     </button>
                 </div>
@@ -107,7 +100,7 @@
 
                 <section class="upload-section">
                     <div class="upload-box" id="uploadBox">
-                        <div class="upload-icon">📁</div>
+
                         <h2>Upload MIDI File</h2>
                         <p>Drag and drop your MIDI file here or click to browse</p>
                         <input type="file" id="midiInput" accept=".mid,.midi" hidden>
@@ -243,7 +236,7 @@
 
                 <section class="upload-section">
                     <div class="upload-box" id="audioUploadBox">
-                        <div class="upload-icon">🎵</div>
+
                         <h2>Upload Audio File</h2>
                         <p>WAV, AIFF, FLAC, OGG, MP3 supported</p>
                         <input type="file" id="audioInput" accept=".wav,.aif,.aiff,.flac,.ogg,.mp3" hidden>
@@ -444,7 +437,7 @@
                         <!-- Stage 1: Your Mix -->
                         <div class="master-slot">
                             <div class="upload-box" id="masterTargetBox">
-                                <div class="upload-icon">🎵</div>
+        
                                 <h3>Your Mix</h3>
                                 <p>WAV · AIFF · FLAC</p>
                                 <input type="file" id="masterTargetInput" accept=".wav,.aif,.aiff,.flac" hidden>
@@ -459,7 +452,6 @@
                         <!-- Stage 2: Reference Track -->
                         <div class="master-slot">
                             <div class="upload-box" id="masterReferenceBox">
-                                <div class="upload-icon">🎼</div>
                                 <h3>Reference Track</h3>
                                 <p>WAV · AIFF · FLAC</p>
                                 <input type="file" id="masterReferenceInput" accept=".wav,.aif,.aiff,.flac" hidden>
@@ -477,7 +469,6 @@
 
                                 <!-- Pending -->
                                 <div id="masterResultPending" class="master-result-pending">
-                                    <div class="upload-icon master-result-icon">🎚️</div>
                                     <h3>Mastered Output</h3>
                                     <p>Ready after processing</p>
                                     <button id="masterSubmitBtn" class="btn btn-master-cta" style="display:none; margin-top:0.5rem;">Master</button>
@@ -485,7 +476,7 @@
 
                                 <!-- Complete -->
                                 <div id="masterResultComplete" style="display:none;" class="master-result-complete">
-                                    <div class="master-done-title">✅ Mastering Complete</div>
+                                    <div class="master-done-title">Mastering Complete</div>
                                     <p id="masterResultMsg" class="master-done-sub"></p>
                                     <table class="mrm-table">
                                         <thead><tr><th></th><th>Before</th><th></th><th>After</th></tr></thead>
@@ -534,7 +525,6 @@
                 <section class="upload-section">
 
                     <div class="upload-box" id="loudnessUploadBox">
-                        <div class="upload-icon">📢</div>
                         <h2>Upload Audio File</h2>
                         <p>WAV · AIFF · FLAC</p>
                         <input type="file" id="loudnessInput" accept=".wav,.aif,.aiff,.flac" hidden>
@@ -566,7 +556,7 @@
 
                 <div id="loudnessResult" class="loudness-result" style="display:none;">
                     <div class="loudness-result-inner">
-                        <div class="loudness-done-title">✅ Normalization Complete</div>
+                        <div class="loudness-done-title">Normalization Complete</div>
                         <p id="loudnessResultMsg" class="loudness-done-sub"></p>
                         <table class="mrm-table">
                             <thead><tr><th></th><th>Before</th><th></th><th>After</th></tr></thead>
@@ -576,7 +566,7 @@
                                 <tr><td class="mrm-label">Gain applied</td><td colspan="3" id="lGainApplied" class="mrm-after">—</td></tr>
                             </tbody>
                         </table>
-                        <p id="loudnessClampedMsg" class="loudness-clamped-msg" style="display:none;">⚠️ True peak was limited to −1 dBFS to prevent clipping.</p>
+                        <p id="loudnessClampedMsg" class="loudness-clamped-msg" style="display:none;">Note: True peak was limited to −1 dBFS to prevent clipping.</p>
                         <a id="loudnessDownloadLink" class="btn btn-master-cta loudness-dl-btn" download>Download</a>
                         <button id="loudnessResetBtn" class="btn btn-secondary">Normalize Another</button>
                     </div>
@@ -606,7 +596,6 @@
 
                 <section class="upload-section">
                     <div class="upload-box" id="sheetUploadBox">
-                        <div class="upload-icon">🎼</div>
                         <h2>Upload MIDI File</h2>
                         <p>.mid · .midi</p>
                         <input type="file" id="sheetInput" accept=".mid,.midi" hidden>
@@ -648,12 +637,11 @@
                         <p>This tool uses a state-of-the-art AI model to separate your audio into four stems: <strong>vocals</strong>, <strong>drums</strong>, <strong>bass</strong>, and <strong>other instruments</strong>. Each stem downloads as a separate WAV file at full quality.</p>
                         <p class="tool-intro-analogy">Think of it like a prism for music, but instead of colors it splits the song into individual instruments and voices.</p>
                     </div>
-                    <div class="stems-warning">⏱ Processing takes 5–15 minutes depending on file length. This is normal — stem separation is computationally intensive.</div>
+                    <div class="stems-warning">Processing takes 5–15 minutes depending on file length. This is normal — stem separation is computationally intensive.</div>
                 </div>
 
                 <section class="upload-section">
                     <div class="upload-box" id="stemsUploadBox">
-                        <div class="upload-icon">✂️</div>
                         <h2>Upload Audio File</h2>
                         <p>WAV · AIFF · FLAC · MP3</p>
                         <input type="file" id="stemsInput" accept=".wav,.aif,.aiff,.flac,.mp3" hidden>
@@ -664,7 +652,7 @@
                 </section>
 
                 <div id="stemsResult" style="display:none;" class="stems-result">
-                    <div class="stems-done-title">✅ Stems Ready</div>
+                    <div class="stems-done-title">Stems Ready</div>
                     <p id="stemsResultMsg" class="stems-done-sub"></p>
                     <div class="stems-download-grid" id="stemsDownloadGrid"></div>
                     <button id="stemsResetBtn" class="btn btn-secondary" style="margin-top:1.2rem;">Split Another</button>

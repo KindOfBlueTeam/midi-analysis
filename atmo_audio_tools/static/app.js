@@ -199,7 +199,7 @@ class MIDIAnalysisApp {
                 navigator.clipboard.writeText(json).then(() => {
                     const btn = this.elements.copyAudioJsonBtn;
                     const orig = btn.textContent;
-                    btn.textContent = '✓ Copied!';
+                    btn.textContent = 'Copied!';
                     setTimeout(() => { btn.textContent = orig; }, 2000);
                 });
             }
@@ -395,7 +395,7 @@ class MIDIAnalysisApp {
         }
 
         this.midiFile = file;
-        this.elements.fileName.textContent = `📄 ${file.name} (${this.formatFileSize(file.size)})`;
+        this.elements.fileName.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
         this.elements.fileName.style.display = 'block';
         this.elements.analyzeBtn.style.display = 'block';
         this.hideError();
@@ -539,15 +539,15 @@ class MIDIAnalysisApp {
                 // Update label based on score
                 let label = '';
                 if (score < 20) {
-                    label = '🎵 Clearly Human - Natural velocity variation';
+                    label = 'Clearly Human — Natural velocity variation';
                 } else if (score < 40) {
-                    label = '🎶 Likely Human - Good velocity dynamics';
+                    label = 'Likely Human — Good velocity dynamics';
                 } else if (score < 60) {
-                    label = '⚙️ Mixed - Some velocity variation';
+                    label = 'Mixed — Some velocity variation';
                 } else if (score < 80) {
-                    label = '📱 Likely Software - Limited velocity range';
+                    label = 'Likely Software — Limited velocity range';
                 } else {
-                    label = '🤖 Clearly Software - All notes same velocity';
+                    label = 'Clearly Software — All notes same velocity';
                 }
                 document.getElementById('humanessLabel').textContent = label;
 
@@ -577,15 +577,15 @@ class MIDIAnalysisApp {
 
             let qLabel = '';
             if (score < 20) {
-                qLabel = '🎵 Clearly Human - Notes placed freely';
+                qLabel = 'Clearly Human — Notes placed freely';
             } else if (score < 40) {
-                qLabel = '🎶 Likely Human - Some timing variation';
+                qLabel = 'Likely Human — Some timing variation';
             } else if (score < 60) {
-                qLabel = '⚙️ Mixed - Partially quantized';
+                qLabel = 'Mixed — Partially quantized';
             } else if (score < 80) {
-                qLabel = '📱 Likely Software - Most notes on grid';
+                qLabel = 'Likely Software — Most notes on grid';
             } else {
-                qLabel = '🤖 Clearly Software - All notes snapped to grid';
+                qLabel = 'Clearly Software — All notes snapped to grid';
             }
             document.getElementById('quantizationLabel').textContent = qLabel;
             this.elements.humanizeTimingBtn.style.display = 'inline-block';
@@ -609,7 +609,7 @@ class MIDIAnalysisApp {
             return;
         }
 
-        let html = '<h4>🎸 Instruments</h4>';
+        let html = '<h4>Instruments</h4>';
         instruments.forEach(inst => {
             html += `
                 <div class="instrument-item">
@@ -874,7 +874,7 @@ class MIDIAnalysisApp {
         navigator.clipboard.writeText(json).then(() => {
             const btn = this.elements.copyJsonBtn;
             const originalText = btn.textContent;
-            btn.textContent = '✓ Copied!';
+            btn.textContent = 'Copied!';
             setTimeout(() => {
                 btn.textContent = originalText;
             }, 2000);
@@ -963,7 +963,7 @@ class MIDIAnalysisApp {
             return;
         }
         this.audioFile = file;
-        this.elements.audioFileName.textContent = `🎵 ${file.name} (${this.formatFileSize(file.size)})`;
+        this.elements.audioFileName.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
         this.elements.audioFileName.style.display = 'block';
         this.elements.audioAnalyzeBtn.style.display = 'block';
         this.hideAudioError();
@@ -1347,7 +1347,7 @@ class MIDIAnalysisApp {
 
                 if (d.stems_ready && d.stems_ready.length) {
                     this.elements.masterLogStream.innerHTML =
-                        d.stems_ready.map(s => `<div>✓ ${s} ready</div>`).join('');
+                        d.stems_ready.map(s => `<div>${s} ready</div>`).join('');
                 }
 
                 if (d.status === 'complete') {
@@ -1365,7 +1365,7 @@ class MIDIAnalysisApp {
     }
 
     _finishStems(jobId, data) {
-        const stemLabels = { vocals: '🎤 Vocals', drums: '🥁 Drums', bass: '🎸 Bass', other: '🎹 Other' };
+        const stemLabels = { vocals: 'Vocals', drums: 'Drums', bass: 'Bass', other: 'Other' };
         this.elements.stemsDownloadGrid.innerHTML = '';
 
         data.stem_names.forEach(stem => {
@@ -1385,7 +1385,7 @@ class MIDIAnalysisApp {
         zipBtn.href     = `/api/stems/download-zip/${jobId}`;
         zipBtn.download = `${data.filename}-stems.zip`;
         zipBtn.className = 'btn btn-primary stems-zip-btn';
-        zipBtn.textContent = '⬇ Download All Stems as ZIP';
+        zipBtn.textContent = 'Download All Stems as ZIP';
         this.elements.stemsDownloadGrid.insertAdjacentElement('afterend', zipBtn);
 
         this.elements.stemsResultMsg.textContent = data.filename;
@@ -1530,7 +1530,7 @@ class MIDIAnalysisApp {
         const harm = r.harmonic || {};
         if (!harm.error) {
             const rootLabel = harm.inferred_harmonic_root
-                + (harm.harmonic_root_diverges_from_tonic ? ' ⚠' : '');
+                + (harm.harmonic_root_diverges_from_tonic ? ' (diverges)' : '');
             this._set('aResRoot',         rootLabel || 'N/A');
             this._set('aResBassRoot',     harm.dominant_bass_pitch_class || 'N/A');
             this._set('aResRootStab',     harm.root_stability_pct != null ? `${harm.root_stability_pct}%` : 'N/A');
@@ -1737,7 +1737,7 @@ class MIDIAnalysisApp {
             const bar = `<div style="height:4px;border-radius:2px;background:rgba(0,153,255,0.2);margin-top:3px;">
                 <div style="height:100%;width:${pct}%;background:#0099ff;border-radius:2px;"></div></div>`;
             return `<div style="margin-bottom:6px;">
-                <span style="color:${idx===0?'#10b981':'#94b8d0'};font-size:0.85em;">${idx===0?'★ ':''}${name}</span>
+                <span style="color:${idx===0?'#10b981':'#94b8d0'};font-size:0.85em;">${name}</span>
                 <span style="float:right;font-size:0.8em;color:#94b8d0;">${scores.total_score.toFixed(3)}</span>
                 ${bar}
             </div>`;
@@ -1756,7 +1756,7 @@ class MIDIAnalysisApp {
             const bar = `<div style="height:4px;border-radius:2px;background:rgba(0,153,255,0.2);margin-top:3px;">
                 <div style="height:100%;width:${pct}%;background:#0099ff;border-radius:2px;"></div></div>`;
             return `<div style="margin-bottom:6px;">
-                <span style="color:${idx===0?'#10b981':'#94b8d0'};font-size:0.85em;">${idx===0?'★ ':''}${c.bpm} BPM</span>
+                <span style="color:${idx===0?'#10b981':'#94b8d0'};font-size:0.85em;">${c.bpm} BPM</span>
                 <span style="float:right;font-size:0.8em;color:#94b8d0;">${c.score.toFixed(3)}</span>
                 ${bar}
             </div>`;
@@ -1773,7 +1773,7 @@ class MIDIAnalysisApp {
             const isSelected = idx === 0;
             const memberStr = g.members.map((b, i) => {
                 const isSel = g.selected_bpm != null && b === g.selected_bpm;
-                return `<span style="color:${isSel ? '#10b981' : '#94b8d0'}">${isSel ? '★' : ''}${b}</span>`;
+                return `<span style="color:${isSel ? '#10b981' : '#94b8d0'}">${b}</span>`;
             }).join(' · ');
             const bar = `<div style="height:4px;border-radius:2px;background:rgba(0,153,255,0.2);margin-top:3px;">
                 <div style="height:100%;width:${pct}%;background:${isSelected ? '#10b981' : '#0099ff'};border-radius:2px;"></div></div>`;

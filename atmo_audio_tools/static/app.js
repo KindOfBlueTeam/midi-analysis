@@ -1047,6 +1047,7 @@ class MIDIAnalysisApp {
         document.getElementById('convertTab').style.display        = tab === 'convert'      ? '' : 'none';
         document.getElementById('drumTab').style.display           = tab === 'drum'         ? '' : 'none';
         document.getElementById('tempoTab').style.display          = tab === 'tempo'        ? '' : 'none';
+        document.getElementById('vstTab').style.display            = tab === 'vst'          ? '' : 'none';
     }
 
     // ── Audio file handling ───────────────────────────────────────────────────

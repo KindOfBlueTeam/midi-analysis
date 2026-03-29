@@ -74,6 +74,13 @@
                     </button>
                 </div>
 
+                <div class="nav-group nav-group-knowledge">
+                    <div class="nav-group-label nav-group-label-knowledge">Knowledge</div>
+                    <button class="tab-btn knowledge" data-tab="vst">
+                        <span class="nav-label">VSTs Explained</span>
+                    </button>
+                </div>
+
             </nav>
 
             <div class="sidebar-contact">
@@ -882,6 +889,52 @@
                 <div id="tempoEngine" class="tempo-engine"></div>
 
             </div><!-- /tempoTab -->
+
+            <!-- ═══════════════════════════ VST TAB ════════════════════════════ -->
+            <div id="vstTab" class="tab-content" style="display:none;">
+
+                <div class="tool-intro">
+                    <h2 class="tool-intro-heading">VSTs Explained</h2>
+                    <div class="tool-intro-body">
+                        <p>VST stands for <strong>Virtual Studio Technology</strong> — a plugin format created by Steinberg in 1996. A VST is a piece of software that runs inside your DAW to add virtual instruments, effects, and processors to your productions. Instead of buying physical hardware, you install a VST and it lives in your session like any other channel.</p>
+                        <p>There are two core types. <strong>VST Instruments (VSTi)</strong> generate sound — synthesizers, samplers, drum machines, orchestral libraries, and any other virtual instrument you can think of. <strong>VST Effects</strong> process sound — compressors, EQs, reverbs, delays, saturators, and mastering tools. Most modern plugins ship in VST3 format (Windows and Mac), with AU versions for Mac-only hosts like Logic Pro.</p>
+                        <p>Before VSTs existed, professional-grade sounds required expensive physical hardware. A vintage Moog synthesizer, a Neve console, a Lexicon reverb unit — each one cost thousands of dollars and took up rack space. VSTs put those same sounds into software at a fraction of the cost, which is a large part of why independent music production exploded in the 2000s. Today a single producer with a laptop has access to sounds that would have filled an entire studio floor twenty years ago.</p>
+                        <p class="tool-intro-analogy">Think of your DAW as the kitchen, and VSTs as the ingredients and equipment — the better your toolkit, the more you can cook.</p>
+                    </div>
+                </div>
+
+                <div class="knowledge-cards">
+
+                    <div class="knowledge-card">
+                        <div class="knowledge-card-label">Instruments</div>
+                        <h3 class="knowledge-card-title">VSTi — Virtual Instruments</h3>
+                        <p>Synthesizers, samplers, drum machines, pianos, string libraries — anything that produces sound from scratch or from samples. These replace (or complement) hardware instruments in your signal chain.</p>
+                        <p>Common examples: analog synth emulations (Moog, Juno, Prophet), FM synthesizers, acoustic instrument libraries, lo-fi samplers, and drum machines.</p>
+                    </div>
+
+                    <div class="knowledge-card">
+                        <div class="knowledge-card-label">Effects</div>
+                        <h3 class="knowledge-card-title">VST FX — Signal Processors</h3>
+                        <p>Tools that shape, color, or transform audio that already exists. Inserted on tracks or buses in your DAW, they sit in the signal path between your source and your output.</p>
+                        <p>Common examples: compressors, EQs, reverbs, delays, chorus/flanger, distortion, tape saturation, stereo imaging, and mastering limiters.</p>
+                    </div>
+
+                    <div class="knowledge-card">
+                        <div class="knowledge-card-label">Formats</div>
+                        <h3 class="knowledge-card-title">VST2, VST3, AU, CLAP</h3>
+                        <p><strong>VST3</strong> is the current standard and works in Ableton, FL Studio, Cubase, Reaper, and most modern DAWs on Windows and Mac. <strong>AU (Audio Units)</strong> is the Mac-only format used by Logic Pro and GarageBand. <strong>CLAP</strong> is a newer open standard gaining traction. Most commercial plugins ship in all formats.</p>
+                    </div>
+
+                    <div class="knowledge-card knowledge-card-cta">
+                        <div class="knowledge-card-label">Shop</div>
+                        <h3 class="knowledge-card-title">Find the Right VST for Your Sound</h3>
+                        <p>Romplur is a curated VST marketplace with a strong focus on quality and value. Whether you're looking for a specific synthesizer sound, a vintage effect, or a complete instrument library, it's a good place to start.</p>
+                        <a href="https://romplur.com/" target="_blank" rel="noopener noreferrer" class="knowledge-cta-btn">Browse VSTs at Romplur →</a>
+                    </div>
+
+                </div>
+
+            </div><!-- /vstTab -->
 
         </main>
 

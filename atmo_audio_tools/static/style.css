@@ -198,6 +198,15 @@ body::before {
     color: rgba(160, 100, 255, 0.55);
 }
 
+.nav-group-knowledge {
+    border-color: rgba(0, 180, 160, 0.18);
+    background: rgba(0, 28, 26, 0.22);
+}
+
+.nav-group-label-knowledge {
+    color: rgba(0, 210, 190, 0.55);
+}
+
 /* Disabled/coming-soon nav button */
 .tab-btn:disabled {
     opacity: 0.38;
@@ -385,6 +394,42 @@ body::before {
         0 0 60px rgba(130, 60, 240, 0.24),
         0 0 18px rgba(180, 100, 255, 0.30),
         inset 0 1px 0 rgba(200, 150, 255, 0.24),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.tab-btn.knowledge {
+    background: #001614;
+    color: rgba(0, 200, 180, 0.72);
+    border-top:    2px solid rgba(0, 180, 160, 0.12);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+    border-left:   1px solid rgba(0, 160, 140, 0.18);
+    border-right:  1px solid rgba(0, 160, 140, 0.18);
+    box-shadow:
+        0 0 6px rgba(0, 180, 160, 0.07),
+        inset 0 1px 0 rgba(0, 210, 190, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn.knowledge:hover:not(.active) {
+    color: rgba(0, 230, 210, 0.90);
+    background: #002220;
+    box-shadow:
+        0 0 10px rgba(0, 180, 160, 0.22),
+        inset 0 1px 0 rgba(0, 210, 190, 0.10);
+}
+
+.tab-btn.knowledge.active {
+    background: #003d38;
+    color: #e0faf8;
+    text-shadow: 0 0 12px rgba(0, 230, 210, 1.0);
+    border-top:    2px solid rgba(0, 220, 200, 0.42);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+    border-left:   1px solid rgba(0, 200, 180, 0.42);
+    border-right:  1px solid rgba(0, 200, 180, 0.42);
+    box-shadow:
+        0 0 28px rgba(0, 180, 160, 0.55),
+        0 0 60px rgba(0, 180, 160, 0.20),
+        inset 0 1px 0 rgba(0, 220, 200, 0.24),
         inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
@@ -3018,4 +3063,76 @@ body::before {
     font-size: 0.78rem;
     color: rgba(255,255,255,0.3);
     letter-spacing: 0.03em;
+}
+
+/* ── Knowledge cards ─────────────────────────────────────────────────────── */
+
+.knowledge-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.knowledge-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0, 180, 160, 0.12);
+    border-radius: 10px;
+    padding: 1.6rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.knowledge-card-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(0, 210, 190, 0.50);
+}
+
+.knowledge-card-title {
+    font-size: 1.0rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0;
+}
+
+.knowledge-card p {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.knowledge-card strong {
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 500;
+}
+
+.knowledge-card-cta {
+    border-color: rgba(0, 210, 190, 0.28);
+    background: rgba(0, 40, 36, 0.35);
+}
+
+.knowledge-cta-btn {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    background: rgba(0, 180, 160, 0.15);
+    border: 1px solid rgba(0, 210, 190, 0.40);
+    border-radius: 6px;
+    color: rgba(0, 230, 210, 0.90);
+    font-size: 0.88rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+    align-self: flex-start;
+}
+
+.knowledge-cta-btn:hover {
+    background: rgba(0, 180, 160, 0.28);
+    box-shadow: 0 0 16px rgba(0, 180, 160, 0.30);
+    color: #e0faf8;
 }

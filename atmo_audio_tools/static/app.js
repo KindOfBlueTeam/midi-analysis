@@ -1944,31 +1944,6 @@ class MIDIAnalysisApp {
             }
         }
 
-        // Harmonic
-        const harm = r.harmonic || {};
-        if (!harm.error) {
-            const rootLabel = harm.inferred_harmonic_root
-                + (harm.harmonic_root_diverges_from_tonic ? ' (diverges)' : '');
-            this._set('aResRoot',         rootLabel || 'N/A');
-            this._set('aResBassRoot',     harm.dominant_bass_pitch_class || 'N/A');
-            this._set('aResRootStab',     harm.root_stability_pct != null ? `${harm.root_stability_pct}%` : 'N/A');
-            this._set('aResRootRank1',    harm.root_rank1_pct != null ? `${harm.root_rank1_pct}%` : 'N/A');
-            this._set('aResRootTop2',     harm.root_top2_pct != null ? `${harm.root_top2_pct}%` : 'N/A');
-            this._set('aResRootMeanRank', harm.root_mean_rank != null ? harm.root_mean_rank.toFixed(2) : 'N/A');
-            this._set('aResMarginMean',   harm.tonic_margin_mean != null ? harm.tonic_margin_mean.toFixed(3) : 'N/A');
-            this._set('aResKeyDrift',     harm.key_drift ?? 'N/A');
-            this._set('aResVI',           harm.dominant_tonic_resolution_pct != null ? `${harm.dominant_tonic_resolution_pct}%` : 'N/A');
-            this._set('aResChords',       harm.chord_changes_per_min ?? 'N/A');
-            this._set('aResChordConf',    harm.chord_change_confidence != null ? harm.chord_change_confidence.toFixed(3) : 'N/A');
-            if (harm.interpretive_labels && harm.interpretive_labels.length > 0) {
-                this._set('aResInterpretive', harm.interpretive_labels.join(' · '));
-                document.getElementById('aResInterpretiveRow').style.display = '';
-            } else {
-                document.getElementById('aResInterpretiveRow').style.display = 'none';
-            }
-            this._renderCandidateTonics('harmonicRootCandidatesContainer', harm.harmonic_root_candidates || {});
-        }
-
         // Bass
         const bass = r.bass || {};
         if (!bass.error) {
@@ -1992,9 +1967,6 @@ class MIDIAnalysisApp {
         if (!opt.error) {
             this._set('aResTransient',     opt.transient_density_per_min != null ? `${opt.transient_density_per_min}/min` : 'N/A');
             this._set('aResFlux',          opt.spectral_flux ?? 'N/A');
-            this._set('aResHarmComplexity',opt.harmonic_complexity_label
-                ? `${opt.harmonic_complexity_label} (${opt.harmonic_complexity_pcs} avg PCs)`
-                : 'N/A');
         }
 
         // Store result for download; write to raw display if present

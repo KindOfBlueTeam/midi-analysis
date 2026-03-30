@@ -2210,8 +2210,132 @@ def _analyze_bass(y: np.ndarray, sr: int, tonic_pc: int) -> dict:
     }
 
 
+def _detect_sections(y: np.ndarray, sr: int, rms_norm: np.ndarray,
+                     duration: float) -> list:
+    """
+    Detect musical section boundaries using MFCC self-similarity and
+    recurrence-matrix novelty detection.  Falls back to equal thirds if
+    the audio is too short or featureless for structural analysis.
+    Returns a list of {label, energy_pct, time_range} dicts.
+    """
+    import scipy.signal
+
+    n_rms = len(rms_norm)
+
+    try:
+        hop = 512
+
+        # ── 1. Beat-synchronised MFCC features ──────────────────────────────
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20, hop_length=hop)
+
+        _, beats = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop)
+        if len(beats) > 8:
+            feat    = librosa.util.sync(mfcc, beats, aggregate=np.median)
+            b_times = librosa.frames_to_time(beats, sr=sr, hop_length=hop)
+        else:
+            # Ambient / beatless: subsample raw frames
+            step    = max(1, mfcc.shape[1] // 200)
+            feat    = mfcc[:, ::step]
+            b_times = np.arange(feat.shape[1]) * (step * hop / sr)
+
+        n_frames = feat.shape[1]
+        if n_frames < 6:
+            raise ValueError("track too short for structural analysis")
+
+        # ── 2. Recurrence matrix + path enhancement ──────────────────────────
+        k     = max(2, n_frames // 15)
+        R     = librosa.segment.recurrence_matrix(
+                    feat, mode='affinity', sym=True, k=k)
+        R_hat = librosa.segment.path_enhance(R, min(15, n_frames // 4))
+
+        # ── 3. Novelty curve ─────────────────────────────────────────────────
+        # Frame-to-frame change in mean column affinity; peaks = boundaries.
+        col_sim = R_hat.mean(axis=0)
+        novelty = np.abs(np.diff(col_sim, prepend=col_sim[0]))
+
+        win = max(3, n_frames // 12)
+        if win % 2 == 0:
+            win += 1
+        win = min(win, n_frames - (1 if n_frames % 2 == 0 else 0))
+        if win >= 3:
+            novelty = scipy.signal.savgol_filter(novelty, win, 2)
+
+        # ── 4. Peak detection → boundary times ───────────────────────────────
+        min_dist   = max(2, n_frames // 7)
+        peaks, _   = scipy.signal.find_peaks(
+                         novelty,
+                         distance=min_dist,
+                         height=np.percentile(novelty, 40))
+
+        # Scale section count to duration (3 for short tracks, up to 6 for long)
+        n_target = min(6, max(3, int(duration / 60) + 2))
+        if len(peaks) > n_target - 1:
+            top   = np.argsort(novelty[peaks])[::-1][: n_target - 1]
+            peaks = np.sort(peaks[top])
+
+        boundary_secs = []
+        for p in peaks:
+            if p < len(b_times):
+                t = float(b_times[p])
+                if 0.06 * duration < t < 0.94 * duration:
+                    boundary_secs.append(t)
+
+        if not boundary_secs:
+            raise ValueError("no valid boundaries detected")
+
+    except Exception:
+        # Graceful fallback: equal thirds
+        boundary_secs = [duration / 3, 2 * duration / 3]
+
+    # ── 5. Build section dicts ────────────────────────────────────────────
+    starts   = [0.0] + sorted(set(boundary_secs))
+    sections = []
+    for i, t0 in enumerate(starts):
+        t1 = starts[i + 1] if i < len(starts) - 1 else duration
+        i0 = min(n_rms - 1, int((t0 / duration) * n_rms))
+        i1 = min(n_rms,     int((t1 / duration) * n_rms))
+        if i1 <= i0:
+            i1 = min(n_rms, i0 + 1)
+
+        avg_e = round(float(rms_norm[i0:i1].mean()), 1)
+        sections.append({
+            'label':      '',
+            'energy_pct': avg_e,
+            'time_range': (f"{int(t0)}s – {int(t1)}s"
+                           if i < len(starts) - 1 else f"{int(t0)}s – end"),
+            '_e':         avg_e,
+        })
+
+    # ── 6. Label by position + relative energy ───────────────────────────
+    n_sec   = len(sections)
+    energies = [s['_e'] for s in sections]
+    e_min, e_max = min(energies), max(energies)
+    e_range = e_max - e_min or 1.0
+
+    for i, s in enumerate(sections):
+        norm_e = (s['_e'] - e_min) / e_range   # 0 = quietest, 1 = loudest
+        if i == 0:
+            label = 'Intro'
+        elif i == n_sec - 1:
+            label = 'Outro'
+        elif norm_e >= 0.82:
+            label = 'Drop'
+        elif norm_e >= 0.55:
+            label = 'Chorus'
+        elif norm_e <= 0.25:
+            label = 'Verse'
+        elif norm_e <= 0.45:
+            label = 'Build'
+        else:
+            label = 'Bridge'
+        s['label'] = label
+        del s['_e']
+
+    return sections
+
+
 def _analyze_structure(y: np.ndarray, sr: int) -> dict:
-    hop        = sr  # 1-second frames
+    hop        = sr  # 1-second frames for the energy curve
     rms_frames = librosa.feature.rms(y=y, frame_length=hop * 2, hop_length=hop)[0]
 
     r_min, r_max = rms_frames.min(), rms_frames.max()
@@ -2220,27 +2344,11 @@ def _analyze_structure(y: np.ndarray, sr: int) -> dict:
         if r_max > r_min else np.full_like(rms_frames, 50.0)
     )
 
-    n     = len(rms_norm)
-    times = librosa.frames_to_time(np.arange(n), sr=sr, hop_length=hop).tolist()
-    third = max(1, n // 3)
+    n        = len(rms_norm)
+    times    = librosa.frames_to_time(np.arange(n), sr=sr, hop_length=hop).tolist()
+    duration = len(y) / sr
 
-    sections = [
-        {
-            'label':      'Intro',
-            'energy_pct': round(float(rms_norm[:third].mean()), 1),
-            'time_range': f"0s – {times[third - 1]:.0f}s",
-        },
-        {
-            'label':      'Middle',
-            'energy_pct': round(float(rms_norm[third:2 * third].mean()), 1),
-            'time_range': f"{times[third]:.0f}s – {times[min(2 * third, n - 1)]:.0f}s",
-        },
-        {
-            'label':      'Outro',
-            'energy_pct': round(float(rms_norm[2 * third:].mean()), 1),
-            'time_range': f"{times[min(2 * third, n - 1)]:.0f}s – end",
-        },
-    ]
+    sections = _detect_sections(y, sr, rms_norm, duration)
 
     peak_idx  = int(np.argmax(rms_norm))
     peak_time = round(float(times[peak_idx]) if peak_idx < len(times) else 0.0, 1)
@@ -2252,9 +2360,9 @@ def _analyze_structure(y: np.ndarray, sr: int) -> dict:
     curve = [round(float(v), 1) for v in rms_norm[::step]]
 
     return {
-        'energy_curve':          curve,
-        'peak_energy_time_sec':  peak_time,
-        'sections':              sections,
+        'energy_curve':           curve,
+        'peak_energy_time_sec':   peak_time,
+        'sections':               sections,
         'density_onsets_per_sec': density,
     }
 
